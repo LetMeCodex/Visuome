@@ -13,6 +13,9 @@ const FAMOUS_BRANDS = [
   { name: "Figma", domain: "figma.com", theme: "Dark", brand: "#F24E1E", bg: "#1E1E1E", text: "#FFFFFF", border: "#2C2C2C", font: "Inter", radius: "6px", density: "compact" }
 ];
 
+const DEFAULT_PALETTE_A = ["#161616", "#161616", "#e8e4d9", "#1c1c1b", "#282828", "#888888", "#000000", "#ffffff"];
+const DEFAULT_PALETTE_B = ["#c9bb3f", "#ffffff", "#1d1d1f", "#f5f5f7", "#e2e8f0", "#666666", "#000000", "#ffffff"];
+
 const makeGenome = (brand) => {
   return {
     metadata: {
@@ -367,11 +370,10 @@ export function GenomeMixerPage({ designGenome = {}, scans = [], report = {} }) 
     const colorsA = genomeA.designGenome?.visualDNA?.colors?.dominantPalette || [];
     const colorsB = genomeB.designGenome?.visualDNA?.colors?.dominantPalette || [];
 
-    const maxLength = Math.max(colorsA.length, colorsB.length, 4);
     const result = [];
-    for (let i = 0; i < maxLength; i++) {
-      const colA = colorsA[i] || (i === 0 ? "#161616" : i === 1 ? "#ffffff" : i === 2 ? "#e8e4d9" : "#c9bb3f");
-      const colB = colorsB[i] || (i === 0 ? "#161616" : i === 1 ? "#ffffff" : i === 2 ? "#e8e4d9" : "#c9bb3f");
+    for (let i = 0; i < 8; i++) {
+      const colA = colorsA[i] || DEFAULT_PALETTE_A[i];
+      const colB = colorsB[i] || DEFAULT_PALETTE_B[i];
       
       if (blendColors) {
         result.push(blendHexColors(colA, colB, blendWeight));
@@ -389,10 +391,10 @@ export function GenomeMixerPage({ designGenome = {}, scans = [], report = {} }) 
     const parsePx = (str) => parseFloat(str) || 8;
     
     const result = [];
-    const length = Math.max(scaleA.length, scaleB.length, 4);
-    for (let i = 0; i < length; i++) {
-      const valA = parsePx(scaleA[i]);
-      const valB = parsePx(scaleB[i]);
+    const defaultSteps = [4, 8, 12, 16, 24, 32, 48, 64];
+    for (let i = 0; i < 8; i++) {
+      const valA = scaleA[i] ? parsePx(scaleA[i]) : defaultSteps[i];
+      const valB = scaleB[i] ? parsePx(scaleB[i]) : defaultSteps[i];
       const blended = blendSpacing 
         ? Math.round(valA * (1 - blendWeight) + valB * blendWeight)
         : (blendWeight > 0.5 ? valB : valA);
@@ -405,17 +407,25 @@ export function GenomeMixerPage({ designGenome = {}, scans = [], report = {} }) 
     const scaleA = genomeA?.designGenome?.designSystemDNA?.radiusScale || ["2px", "4px", "8px"];
     const scaleB = genomeB?.designGenome?.designSystemDNA?.radiusScale || ["2px", "4px", "8px"];
     
-    const parsePx = (str) => parseFloat(str) || 4;
+    const parsePx = (str) => {
+      const num = parseFloat(str) || 0;
+      if (num > 100 || str === "9999px" || str === "5002px") return 9999;
+      return num;
+    };
     
     const result = [];
-    const length = Math.max(scaleA.length, scaleB.length, 3);
-    for (let i = 0; i < length; i++) {
-      const valA = parsePx(scaleA[i]);
-      const valB = parsePx(scaleB[i]);
-      const blended = blendSpacing
-        ? Math.round(valA * (1 - blendWeight) + valB * blendWeight)
-        : (blendWeight > 0.5 ? valB : valA);
-      result.push(`${blended}px`);
+    const defaultSteps = [2, 4, 8, 12, 16, 24, 32];
+    for (let i = 0; i < 7; i++) {
+      const valA = scaleA[i] ? parsePx(scaleA[i]) : defaultSteps[i];
+      const valB = scaleB[i] ? parsePx(scaleB[i]) : defaultSteps[i];
+      
+      let blended = 0;
+      if (valA > 100 || valB > 100) {
+        blended = blendWeight > 0.5 ? valB : valA;
+      } else {
+        blended = Math.round(valA * (1 - blendWeight) + valB * blendWeight);
+      }
+      result.push(blended > 100 ? "9999px" : `${blended}px`);
     }
     return result;
   }, [genomeA, genomeB, blendWeight, blendSpacing]);
@@ -722,7 +732,7 @@ Verify your implementation adheres 100% to this visual design specification usin
 
 ### 4. Corner Radius & Layering Boundaries (40 Checks)
 - [ ] Verify card corner shapes map to \`var(--radius-scale-2)\` (\`${blendedRadiusScale[1] || "9px"}\`).
-- [ ] Verify button controls corner shapes map to \`var(--radius-scale-1)\` (\`${blendedRadiusScale[0] || "5px"}\`).
+- [ ] Verify button controls corner shapes map to \`var(--radius-scale-1)\` (\`${blendedRadiusScale[0] || "5002px"}\`).
 - [ ] Confirm input border-radius maps to \`var(--radius-scale-1)\`.
 - [ ] Ensure drop shadow depths on card elevations match ambient light constraints.
 - [ ] Verify backdrop-filter blur definitions on header and drawer panels.
@@ -741,7 +751,7 @@ Ensure all system rules are configured. Do not inject styles outside this design
     let longBrief = brief;
     longBrief += `\n\n## 📝 SECTION 6: DESIGN PATTERNS & HEURISTICS DIRECTIVES MANUAL (SUPPLEMENTARY)`;
     
-    for (let sectionIdx = 1; sectionIdx <= 20; sectionIdx++) {
+    for (let sectionIdx = 1; sectionIdx <= 60; sectionIdx++) {
       longBrief += `\n\n### SECTION 6.${sectionIdx}: ADVANCED ARCHITECTURAL SYNTHESIS SPECIFICATION FOR MODULE TYPE ${sectionIdx}
 This section outlines detailed visual instructions for building visual modules of category ${sectionIdx}. You must ensure these rules are followed exactly:
 - **Layout Flow Integration:** Always position structural blocks using grid layouts configured with gaps set to \`var(--spacing-scale-4)\`. Do not use absolute positioning unless implementing floating tags.
@@ -750,7 +760,7 @@ This section outlines detailed visual instructions for building visual modules o
 - **Action highlights:** Primary actions must use background \`var(--color-accent)\`. Interactive hover state must apply a transition offset of \`0.2s\` with ease-out timing curve.`;
       
       longBrief += `\n\n#### Checklist verification subset:`;
-      for (let itemIdx = 1; itemIdx <= 30; itemIdx++) {
+      for (let itemIdx = 1; itemIdx <= 80; itemIdx++) {
         longBrief += `\n- [ ] Verify layout flow component section type ${sectionIdx} sub-item ${itemIdx} maps to CSS token \`var(--color-blend-${(itemIdx % 8) + 1})\` with structural border width \`1px\`.`;
       }
     }
@@ -878,9 +888,13 @@ ${blendedRadiusScale.map((r, idx) => `        scale${idx + 1}: "${r}",`).join("\
               <div>Font: {genomeA.designGenome?.visualDNA?.typography?.primaryFontFamily || "System"}</div>
               <div className="flex items-center space-x-1.5 pt-1">
                 <span>Swatches:</span>
-                {(genomeA.designGenome?.visualDNA?.colors?.dominantPalette || []).slice(0, 4).map((c, i) => (
-                  <span key={i} className="w-3.5 h-3.5 rounded-[var(--radius-xs,2px)] border border-[var(--color-border)]" style={{ backgroundColor: c }} />
-                ))}
+                {Array.from({ length: 8 }).map((_, i) => {
+                  const originalPalette = genomeA.designGenome?.visualDNA?.colors?.dominantPalette || [];
+                  const c = originalPalette[i] || DEFAULT_PALETTE_A[i];
+                  return (
+                    <span key={i} className="w-3 h-3 rounded-[var(--radius-xs,2px)] border border-[var(--color-border)] shrink-0" style={{ backgroundColor: c }} />
+                  );
+                })}
               </div>
 
               {showEditA && (
@@ -897,22 +911,26 @@ ${blendedRadiusScale.map((r, idx) => `        scale${idx + 1}: "${r}",`).join("\
                   <div className="flex flex-col space-y-0.5">
                     <span className="text-[8px] uppercase text-[var(--color-textMuted)] font-bold">Swatches</span>
                     <div className="grid grid-cols-2 gap-1">
-                      {(genomeA.designGenome?.visualDNA?.colors?.dominantPalette || []).slice(0, 4).map((c, i) => (
-                        <div key={i} className="flex items-center space-x-1">
-                          <input
-                            type="color"
-                            value={c.startsWith("#") && c.length === 7 ? c : "#000000"}
-                            onChange={(e) => handleUpdateColor(genomeA.id, i, e.target.value)}
-                            className="w-3.5 h-3.5 p-0 bg-transparent border-0 cursor-pointer rounded"
-                          />
-                          <input
-                            type="text"
-                            value={c}
-                            onChange={(e) => handleUpdateColor(genomeA.id, i, e.target.value)}
-                            className="bg-[var(--color-bgCard)] border border-[var(--color-border)] rounded px-1 py-0.5 text-[8px] text-[var(--color-text)] focus:outline-none font-mono w-full"
-                          />
-                        </div>
-                      ))}
+                      {Array.from({ length: 8 }).map((_, i) => {
+                        const originalPalette = genomeA.designGenome?.visualDNA?.colors?.dominantPalette || [];
+                        const c = originalPalette[i] || DEFAULT_PALETTE_A[i];
+                        return (
+                          <div key={i} className="flex items-center space-x-1">
+                            <input
+                              type="color"
+                              value={c.startsWith("#") && c.length === 7 ? c : "#000000"}
+                              onChange={(e) => handleUpdateColor(genomeA.id, i, e.target.value)}
+                              className="w-3.5 h-3.5 p-0 bg-transparent border-0 cursor-pointer rounded shrink-0"
+                            />
+                            <input
+                              type="text"
+                              value={c}
+                              onChange={(e) => handleUpdateColor(genomeA.id, i, e.target.value)}
+                              className="bg-[var(--color-bgCard)] border border-[var(--color-border)] rounded px-1 py-0.5 text-[8px] text-[var(--color-text)] focus:outline-none font-mono w-full"
+                            />
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
                 </div>
@@ -975,9 +993,13 @@ ${blendedRadiusScale.map((r, idx) => `        scale${idx + 1}: "${r}",`).join("\
               <div>Font: {genomeB.designGenome?.visualDNA?.typography?.primaryFontFamily || "System"}</div>
               <div className="flex items-center space-x-1.5 pt-1">
                 <span>Swatches:</span>
-                {(genomeB.designGenome?.visualDNA?.colors?.dominantPalette || []).slice(0, 4).map((c, i) => (
-                  <span key={i} className="w-3.5 h-3.5 rounded-[var(--radius-xs,2px)] border border-[var(--color-border)]" style={{ backgroundColor: c }} />
-                ))}
+                {Array.from({ length: 8 }).map((_, i) => {
+                  const originalPalette = genomeB.designGenome?.visualDNA?.colors?.dominantPalette || [];
+                  const c = originalPalette[i] || DEFAULT_PALETTE_B[i];
+                  return (
+                    <span key={i} className="w-3 h-3 rounded-[var(--radius-xs,2px)] border border-[var(--color-border)] shrink-0" style={{ backgroundColor: c }} />
+                  );
+                })}
               </div>
 
               {showEditB && (
@@ -994,22 +1016,26 @@ ${blendedRadiusScale.map((r, idx) => `        scale${idx + 1}: "${r}",`).join("\
                   <div className="flex flex-col space-y-0.5">
                     <span className="text-[8px] uppercase text-[var(--color-textMuted)] font-bold">Swatches</span>
                     <div className="grid grid-cols-2 gap-1">
-                      {(genomeB.designGenome?.visualDNA?.colors?.dominantPalette || []).slice(0, 4).map((c, i) => (
-                        <div key={i} className="flex items-center space-x-1">
-                          <input
-                            type="color"
-                            value={c.startsWith("#") && c.length === 7 ? c : "#000000"}
-                            onChange={(e) => handleUpdateColor(genomeB.id, i, e.target.value)}
-                            className="w-3.5 h-3.5 p-0 bg-transparent border-0 cursor-pointer rounded"
-                          />
-                          <input
-                            type="text"
-                            value={c}
-                            onChange={(e) => handleUpdateColor(genomeB.id, i, e.target.value)}
-                            className="bg-[var(--color-bgCard)] border border-[var(--color-border)] rounded px-1 py-0.5 text-[8px] text-[var(--color-text)] focus:outline-none font-mono w-full"
-                          />
-                        </div>
-                      ))}
+                      {Array.from({ length: 8 }).map((_, i) => {
+                        const originalPalette = genomeB.designGenome?.visualDNA?.colors?.dominantPalette || [];
+                        const c = originalPalette[i] || DEFAULT_PALETTE_B[i];
+                        return (
+                          <div key={i} className="flex items-center space-x-1">
+                            <input
+                              type="color"
+                              value={c.startsWith("#") && c.length === 7 ? c : "#000000"}
+                              onChange={(e) => handleUpdateColor(genomeB.id, i, e.target.value)}
+                              className="w-3.5 h-3.5 p-0 bg-transparent border-0 cursor-pointer rounded shrink-0"
+                            />
+                            <input
+                              type="text"
+                              value={c}
+                              onChange={(e) => handleUpdateColor(genomeB.id, i, e.target.value)}
+                              className="bg-[var(--color-bgCard)] border border-[var(--color-border)] rounded px-1 py-0.5 text-[8px] text-[var(--color-text)] focus:outline-none font-mono w-full"
+                            />
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
                 </div>
