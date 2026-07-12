@@ -50,6 +50,38 @@ const SYSTEM_PRESETS = FAMOUS_BRANDS.map(brand => ({
   designGenome: makeGenome(brand)
 }));
 
+function parseHex(hex) {
+  let cleaned = hex.replace("#", "");
+  if (cleaned.length === 3) {
+    cleaned = cleaned.split("").map(c => c + c).join("");
+  }
+  const num = parseInt(cleaned, 16);
+  return {
+    r: (num >> 16) & 255,
+    g: (num >> 8) & 255,
+    b: num & 255
+  };
+}
+
+function toHex(r, g, b) {
+  const clamp = (v) => Math.max(0, Math.min(255, Math.round(v)));
+  const bin = (clamp(r) << 16) | (clamp(g) << 8) | clamp(b);
+  return "#" + bin.toString(16).padStart(6, "0");
+}
+
+function blendHexColors(hexA, hexB, weight) {
+  try {
+    const cA = parseHex(hexA || "#161616");
+    const cB = parseHex(hexB || "#c9bb3f");
+    const r = cA.r * (1 - weight) + cB.r * weight;
+    const g = cA.g * (1 - weight) + cB.g * weight;
+    const b = cA.b * (1 - weight) + cB.b * weight;
+    return toHex(r, g, b);
+  } catch (e) {
+    return hexA || "#161616";
+  }
+}
+
 export function GenomeMixerPage({ designGenome = {}, scans = [] }) {
   const [genomeAId, setGenomeAId] = useState("");
   const [genomeBId, setGenomeBId] = useState("");
@@ -102,29 +134,103 @@ export function GenomeMixerPage({ designGenome = {}, scans = [] }) {
   const genomeA = useMemo(() => allOptions.find(o => o.id === genomeAId) || allOptions[0], [genomeAId, allOptions]);
   const genomeB = useMemo(() => allOptions.find(o => o.id === genomeBId) || allOptions[1] || allOptions[0], [genomeBId, allOptions]);
 
+  // Mathematical blend operations
+  const blendedPalette = useMemo(() => {
+    if (!genomeA || !genomeB) return [];
+    const colorsA = genomeA.designGenome?.visualDNA?.colors?.dominantPalette || [];
+    const colorsB = genomeB.designGenome?.visualDNA?.colors?.dominantPalette || [];
+
+    const maxLength = Math.max(colorsA.length, colorsB.length, 4);
+    const result = [];
+    for (let i = 0; i < maxLength; i++) {
+      const colA = colorsA[i] || (i === 0 ? "#161616" : i === 1 ? "#ffffff" : i === 2 ? "#e8e4d9" : "#c9bb3f");
+      const colB = colorsB[i] || (i === 0 ? "#161616" : i === 1 ? "#ffffff" : i === 2 ? "#e8e4d9" : "#c9bb3f");
+      
+      if (blendColors) {
+        result.push(blendHexColors(colA, colB, blendWeight));
+      } else {
+        result.push(blendWeight > 0.5 ? colB : colA);
+      }
+    }
+    return result;
+  }, [genomeA, genomeB, blendWeight, blendColors]);
+
+  const blendedSpacingScale = useMemo(() => {
+    const scaleA = genomeA?.designGenome?.designSystemDNA?.spacingScale || ["4px", "8px", "16px", "32px"];
+    const scaleB = genomeB?.designGenome?.designSystemDNA?.spacingScale || ["4px", "8px", "16px", "32px"];
+    
+    const parsePx = (str) => parseFloat(str) || 8;
+    
+    const result = [];
+    const length = Math.max(scaleA.length, scaleB.length, 4);
+    for (let i = 0; i < length; i++) {
+      const valA = parsePx(scaleA[i]);
+      const valB = parsePx(scaleB[i]);
+      const blended = blendSpacing 
+        ? Math.round(valA * (1 - blendWeight) + valB * blendWeight)
+        : (blendWeight > 0.5 ? valB : valA);
+      result.push(`${blended}px`);
+    }
+    return result;
+  }, [genomeA, genomeB, blendWeight, blendSpacing]);
+
+  const blendedRadiusScale = useMemo(() => {
+    const scaleA = genomeA?.designGenome?.designSystemDNA?.radiusScale || ["2px", "4px", "8px"];
+    const scaleB = genomeB?.designGenome?.designSystemDNA?.radiusScale || ["2px", "4px", "8px"];
+    
+    const parsePx = (str) => parseFloat(str) || 4;
+    
+    const result = [];
+    const length = Math.max(scaleA.length, scaleB.length, 3);
+    for (let i = 0; i < length; i++) {
+      const valA = parsePx(scaleA[i]);
+      const valB = parsePx(scaleB[i]);
+      const blended = blendSpacing
+        ? Math.round(valA * (1 - blendWeight) + valB * blendWeight)
+        : (blendWeight > 0.5 ? valB : valA);
+      result.push(`${blended}px`);
+    }
+    return result;
+  }, [genomeA, genomeB, blendWeight, blendSpacing]);
+
+  const blendedFontHeading = useMemo(() => {
+    const fontA = genomeA?.designGenome?.visualDNA?.typography?.primaryFontFamily || "Unbounded";
+    const fontB = genomeB?.designGenome?.visualDNA?.typography?.primaryFontFamily || "Manrope";
+    return blendTypo 
+      ? (blendWeight > 0.5 ? fontB : fontA)
+      : fontA;
+  }, [genomeA, genomeB, blendWeight, blendTypo]);
+
+  const blendedFontBody = useMemo(() => {
+    const fontA = genomeA?.designGenome?.visualDNA?.typography?.primaryFontFamily || "Manrope";
+    const fontB = genomeB?.designGenome?.visualDNA?.typography?.primaryFontFamily || "Inter";
+    return blendTypo 
+      ? (blendWeight > 0.5 ? fontA : fontB)
+      : fontB;
+  }, [genomeA, genomeB, blendWeight, blendTypo]);
+
   const handleMix = () => {
     if (!genomeA || !genomeB) return;
 
-    const colorsA = genomeA.designGenome?.visualDNA?.colors?.dominantPalette || [];
-    const colorsB = genomeB.designGenome?.visualDNA?.colors?.dominantPalette || [];
-    
-    const fontA = genomeA.designGenome?.visualDNA?.typography?.primaryFontFamily || "Inter";
-    const fontB = genomeB.designGenome?.visualDNA?.typography?.primaryFontFamily || "Manrope";
+    const colorsStr = blendedPalette.join(", ");
+    const spacingStr = blendedSpacingScale.join(", ");
+    const radiusStr = blendedRadiusScale.join(", ");
 
     const prompt = `You are a principal frontend engineer. Build a unified visual prompt specification blending design DNA from two target sites:
 
 ### 🧬 SOURCE A: ${genomeA.pageTitle} (${genomeA.domain})
-- Primary Colors: ${colorsA.join(", ")}
-- Typography: ${fontA}
+- Primary Font: ${genomeA.designGenome?.visualDNA?.typography?.primaryFontFamily || "System"}
 
 ### 🧬 SOURCE B: ${genomeB.pageTitle} (${genomeB.domain})
-- Primary Colors: ${colorsB.join(", ")}
-- Typography: ${fontB}
+- Primary Font: ${genomeB.designGenome?.visualDNA?.typography?.primaryFontFamily || "System"}
 
-### 🎛️ MIX PARAMETERS
-- Blend Weight: ${(blendWeight * 100).toFixed(0)}% Source B / ${((1 - blendWeight) * 100).toFixed(0)}% Source A
-- Strategy: ${mergeStrategy}
-- Blend Options: Colors (${blendColors ? "Yes" : "No"}), Typography (${blendTypo ? "Yes" : "No"}), Spacing (${blendSpacing ? "Yes" : "No"})
+### 🎛️ MIX PARAMETERS & BLENDED SYSTEM TOKENS
+- **Blend Weight:** ${(blendWeight * 100).toFixed(0)}% Source B / ${((1 - blendWeight) * 100).toFixed(0)}% Source A
+- **Strategy:** ${mergeStrategy}
+- **Interpolated Swatches:** ${colorsStr}
+- **Interpolated Spacings:** ${spacingStr}
+- **Interpolated Radii:** ${radiusStr}
+- **Blended Font Pairing:** Headings: \`${blendedFontHeading}\` / Body: \`${blendedFontBody}\`
 
 Ensure layout components and color systems interpolate structural sizes and typography variables accordingly to target a WCAG AA visual grid specification.`;
 
@@ -143,39 +249,46 @@ Ensure layout components and color systems interpolate structural sizes and typo
   // Dynamic CSS variables output
   const cssVariables = useMemo(() => {
     if (!genomeA || !genomeB) return "";
-    const colorA = genomeA.designGenome?.visualDNA?.colors?.dominantPalette?.[0] || "#161616";
-    const colorB = genomeB.designGenome?.visualDNA?.colors?.dominantPalette?.[0] || "#c9bb3f";
-    const fontA = genomeA.designGenome?.visualDNA?.typography?.primaryFontFamily || "Unbounded";
-    const fontB = genomeB.designGenome?.visualDNA?.typography?.primaryFontFamily || "Manrope";
-
     return `:root {
   /* Blended Palette */
-  --color-blend-A: ${colorA};
-  --color-blend-B: ${colorB};
-  --color-accent: ${blendWeight > 0.5 ? colorB : colorA};
+${blendedPalette.map((c, idx) => `  --color-blend-${idx + 1}: ${c};`).join("\n")}
+  --color-accent: ${blendedPalette[0] || "#c9bb3f"};
 
   /* Blended Fonts */
-  --font-heading: '${blendWeight > 0.5 ? fontB : fontA}', sans-serif;
-  --font-body: 'Manrope', sans-serif;
+  --font-heading: '${blendedFontHeading}', sans-serif;
+  --font-body: '${blendedFontBody}', sans-serif;
+
+  /* Blended Spacing Scale */
+${blendedSpacingScale.map((s, idx) => `  --spacing-scale-${idx + 1}: ${s};`).join("\n")}
+
+  /* Blended Radius Scale */
+${blendedRadiusScale.map((r, idx) => `  --radius-scale-${idx + 1}: ${r};`).join("\n")}
 }`;
-  }, [genomeA, genomeB, blendWeight]);
+  }, [blendedPalette, blendedFontHeading, blendedFontBody, blendedSpacingScale, blendedRadiusScale, genomeA, genomeB]);
 
   const tailwindConfig = useMemo(() => {
     if (!genomeA || !genomeB) return "";
-    const colorA = genomeA.designGenome?.visualDNA?.colors?.dominantPalette?.[0] || "#161616";
-    const colorB = genomeB.designGenome?.visualDNA?.colors?.dominantPalette?.[0] || "#c9bb3f";
     return `module.exports = {
   theme: {
     extend: {
       colors: {
-        blendA: "${colorA}",
-        blendB: "${colorB}",
-        accent: "${blendWeight > 0.5 ? colorB : colorA}"
+${blendedPalette.map((c, idx) => `        blend${idx + 1}: "${c}",`).join("\n")}
+        accent: "${blendedPalette[0] || "#c9bb3f"}"
+      },
+      spacing: {
+${blendedSpacingScale.map((s, idx) => `        scale${idx + 1}: "${s}",`).join("\n")}
+      },
+      borderRadius: {
+${blendedRadiusScale.map((r, idx) => `        scale${idx + 1}: "${r}",`).join("\n")}
+      },
+      fontFamily: {
+        heading: ["${blendedFontHeading}", "sans-serif"],
+        body: ["${blendedFontBody}", "sans-serif"]
       }
     }
   }
 };`;
-  }, [genomeA, genomeB, blendWeight]);
+  }, [blendedPalette, blendedFontHeading, blendedFontBody, blendedSpacingScale, blendedRadiusScale, genomeA, genomeB]);
 
   return (
     <div className="genome-mixer-page p-6 space-y-6 overflow-y-auto h-full text-[var(--color-text)] select-none animate-fade-in">
@@ -299,6 +412,19 @@ Ensure layout components and color systems interpolate structural sizes and typo
         </div>
       </Card>
 
+      {/* Dynamic Swatches Interpolation Visual Preview */}
+      <Card className="p-4 space-y-3 bg-[var(--color-bgMuted)]">
+        <span className="font-caption block">Live Blended Swatches Preview</span>
+        <div className="flex items-center space-x-3.5 pt-1 overflow-x-auto">
+          {blendedPalette.map((c, i) => (
+            <div key={i} className="flex flex-col items-center space-y-1.5 shrink-0 animate-fade-in">
+              <span className="w-10 h-10 rounded-[var(--radius,2px)] border border-[var(--color-border)] shadow-md transition-colors duration-150" style={{ backgroundColor: c }} />
+              <span className="font-mono text-[9px] text-[var(--color-textMuted)]">{c}</span>
+            </div>
+          ))}
+        </div>
+      </Card>
+
       <div className="flex justify-center pt-2">
         <Button onClick={handleMix} variant="primary" className="w-full max-w-sm py-2">
           Generate Blended Spec
@@ -306,7 +432,7 @@ Ensure layout components and color systems interpolate structural sizes and typo
       </div>
 
       {/* Output Panel & Tabs */}
-      <Card className="flex flex-col space-y-3 min-h-[260px]">
+      <Card className="flex flex-col space-y-3 min-h-[300px]">
         <div className="flex space-x-4 border-b border-[var(--color-border)] pb-1.5 text-xs font-semibold">
           <button 
             onClick={() => setActiveTab("prompt")}
@@ -360,7 +486,7 @@ Ensure layout components and color systems interpolate structural sizes and typo
           )}
         </div>
 
-        {generatedPrompt && (
+        {((activeTab === "prompt" && generatedPrompt) || (activeTab === "variables" && cssVariables) || (activeTab === "tailwind" && tailwindConfig)) && (
           <div className="flex space-x-2 pt-2 border-t border-[var(--color-border)]">
             <Button onClick={handleCopy} variant="primary" className="py-1">
               {copySuccess ? "✓ Copied" : "Copy Output"}
