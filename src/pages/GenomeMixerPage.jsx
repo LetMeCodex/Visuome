@@ -51,9 +51,12 @@ const SYSTEM_PRESETS = FAMOUS_BRANDS.map(brand => ({
 }));
 
 function parseHex(hex) {
-  let cleaned = hex.replace("#", "");
+  let cleaned = (hex || "#000").replace("#", "");
   if (cleaned.length === 3) {
     cleaned = cleaned.split("").map(c => c + c).join("");
+  }
+  if (cleaned.length !== 6) {
+    cleaned = "000000";
   }
   const num = parseInt(cleaned, 16);
   return {
@@ -82,12 +85,77 @@ function blendHexColors(hexA, hexB, weight) {
   }
 }
 
+function simulateColors(domain) {
+  let hash = 0;
+  for (let i = 0; i < domain.length; i++) {
+    hash = domain.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  const color1 = toHex((hash >> 24) & 255, (hash >> 16) & 255, (hash >> 8) & 255);
+  const color2 = "#161616";
+  const color3 = "#FFFFFF";
+  const color4 = "#e8e4d9";
+  return [color1, color2, color3, color4];
+}
+
+async function crawlCustomUrl(url) {
+  let cleanUrl = url.trim();
+  if (!/^https?:\/\//i.test(cleanUrl)) {
+    cleanUrl = "https://" + cleanUrl;
+  }
+  
+  const response = await fetch(cleanUrl, { headers: { "Accept": "text/html" } });
+  if (!response.ok) throw new Error("Crawl request failed");
+  const html = await response.text();
+
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(html, "text/html");
+  const title = doc.title || new URL(cleanUrl).hostname;
+  const domain = new URL(cleanUrl).hostname;
+
+  // Sniff colors
+  const hexColors = html.match(/#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})\b/g) || [];
+  const colorCounts = {};
+  hexColors.forEach(c => {
+    let canonical = c.toUpperCase();
+    if (canonical.length === 4) {
+      canonical = "#" + canonical[1] + canonical[1] + canonical[2] + canonical[2] + canonical[3] + canonical[3];
+    }
+    colorCounts[canonical] = (colorCounts[canonical] || 0) + 1;
+  });
+  
+  const uniqueColors = Object.keys(colorCounts)
+    .sort((a, b) => colorCounts[b] - colorCounts[a])
+    .slice(0, 8);
+
+  const finalColors = uniqueColors.length >= 2 ? uniqueColors : simulateColors(domain);
+
+  // Sniff fonts
+  const fontMatches = html.match(/font-family\s*:\s*['"]?([^'";}]+)['"]?/gi) || [];
+  const fontCounts = {};
+  fontMatches.forEach(f => {
+    const fontName = f.replace(/font-family\s*:\s*/i, "").replace(/['"]/g, "").split(",")[0].trim();
+    if (!/^(inherit|sans-serif|serif|monospace|var\()$/i.test(fontName)) {
+      fontCounts[fontName] = (fontCounts[fontName] || 0) + 1;
+    }
+  });
+  const topFonts = Object.keys(fontCounts).sort((a, b) => fontCounts[b] - fontCounts[a]);
+  const font = topFonts[0] || "Inter";
+
+  return {
+    title,
+    domain,
+    colors: finalColors,
+    font,
+    simulated: false
+  };
+}
+
 export function GenomeMixerPage({ designGenome = {}, scans = [] }) {
   const [genomeAId, setGenomeAId] = useState("");
   const [genomeBId, setGenomeBId] = useState("");
   const [blendWeight, setBlendWeight] = useState(0.5);
   const [mergeStrategy, setMergeStrategy] = useState("Dominant Blend");
-  const [activeTab, setActiveTab] = useState("prompt"); // "prompt" | "variables" | "tailwind"
+  const [activeTab, setActiveTab] = useState("prompt");
   
   const [blendColors, setBlendColors] = useState(true);
   const [blendTypo, setBlendTypo] = useState(true);
@@ -95,6 +163,108 @@ export function GenomeMixerPage({ designGenome = {}, scans = [] }) {
   
   const [generatedPrompt, setGeneratedPrompt] = useState("");
   const [copySuccess, setCopySuccess] = useState(false);
+
+  // Custom crawled/edited genomes
+  const [customGenomes, setCustomGenomes] = useState([]);
+  const [editedGenomes, setEditedGenomes] = useState({});
+
+  // Crawling inputs states
+  const [crawlUrlA, setCrawlUrlA] = useState("");
+  const [crawlUrlB, setCrawlUrlB] = useState("");
+  const [crawlingA, setCrawlingA] = useState(false);
+  const [crawlingB, setCrawlingB] = useState(false);
+  const [showCrawlA, setShowCrawlA] = useState(false);
+  const [showCrawlB, setShowCrawlB] = useState(false);
+  const [showEditA, setShowEditA] = useState(false);
+  const [showEditB, setShowEditB] = useState(false);
+
+  const addCustomGenome = (newGenome) => {
+    const id = `custom-${newGenome.domain}-${Date.now()}`;
+    const genomeObj = {
+      id,
+      pageTitle: newGenome.title,
+      domain: newGenome.domain,
+      designGenome: {
+        metadata: { genomeId: id, generatedAt: new Date().toISOString() },
+        visualDNA: {
+          colors: {
+            theme: "Dark",
+            dominantPalette: newGenome.colors,
+            backgroundColors: [newGenome.colors[1] || "#161616"],
+            textColors: [newGenome.colors[2] || "#ffffff"],
+            borderColors: [newGenome.colors[3] || "#282828"]
+          },
+          typography: {
+            primaryFontFamily: newGenome.font,
+            fontWeights: [400, 500, 700],
+            fontSizes: ["12px", "14px", "16px", "24px", "32px"]
+          }
+        },
+        designSystemDNA: {
+          radiusScale: ["4px", "8px", "16px"],
+          spacingScale: ["4px", "8px", "16px", "32px"]
+        },
+        layoutDNA: { density: "balanced" }
+      }
+    };
+    setCustomGenomes(prev => [genomeObj, ...prev]);
+    return id;
+  };
+
+  const handleCrawlA = async () => {
+    if (!crawlUrlA) return;
+    setCrawlingA(true);
+    try {
+      const data = await crawlCustomUrl(crawlUrlA);
+      const newId = addCustomGenome(data);
+      setGenomeAId(newId);
+      setShowCrawlA(false);
+      setCrawlUrlA("");
+    } catch (err) {
+      // Simulate fallback
+      const domain = crawlUrlA.replace(/^https?:\/\/(www\.)?/i, "").split("/")[0] || "custom-site.com";
+      const data = {
+        title: domain.split(".")[0],
+        domain,
+        colors: simulateColors(domain),
+        font: "Inter",
+        simulated: true
+      };
+      const newId = addCustomGenome(data);
+      setGenomeAId(newId);
+      setShowCrawlA(false);
+      setCrawlUrlA("");
+    } finally {
+      setCrawlingA(false);
+    }
+  };
+
+  const handleCrawlB = async () => {
+    if (!crawlUrlB) return;
+    setCrawlingB(true);
+    try {
+      const data = await crawlCustomUrl(crawlUrlB);
+      const newId = addCustomGenome(data);
+      setGenomeBId(newId);
+      setShowCrawlB(false);
+      setCrawlUrlB("");
+    } catch (err) {
+      const domain = crawlUrlB.replace(/^https?:\/\/(www\.)?/i, "").split("/")[0] || "custom-site.com";
+      const data = {
+        title: domain.split(".")[0],
+        domain,
+        colors: simulateColors(domain),
+        font: "Inter",
+        simulated: true
+      };
+      const newId = addCustomGenome(data);
+      setGenomeBId(newId);
+      setShowCrawlB(false);
+      setCrawlUrlB("");
+    } finally {
+      setCrawlingB(false);
+    }
+  };
 
   // Compile options from presets and active scans
   const allOptions = useMemo(() => {
@@ -114,8 +284,8 @@ export function GenomeMixerPage({ designGenome = {}, scans = [] }) {
       });
     }
 
-    return [...list, ...SYSTEM_PRESETS];
-  }, [scans, designGenome]);
+    return [...customGenomes, ...list, ...SYSTEM_PRESETS];
+  }, [scans, designGenome, customGenomes]);
 
   useEffect(() => {
     if (allOptions.length > 0) {
@@ -131,8 +301,64 @@ export function GenomeMixerPage({ designGenome = {}, scans = [] }) {
     }
   }, [allOptions]);
 
-  const genomeA = useMemo(() => allOptions.find(o => o.id === genomeAId) || allOptions[0], [genomeAId, allOptions]);
-  const genomeB = useMemo(() => allOptions.find(o => o.id === genomeBId) || allOptions[1] || allOptions[0], [genomeBId, allOptions]);
+  const getGenomeWithEdits = (baseGenome) => {
+    if (!baseGenome) return null;
+    const edits = editedGenomes[baseGenome.id];
+    if (!edits) return baseGenome;
+
+    return {
+      ...baseGenome,
+      designGenome: {
+        ...baseGenome.designGenome,
+        visualDNA: {
+          ...baseGenome.designGenome.visualDNA,
+          colors: {
+            ...baseGenome.designGenome.visualDNA?.colors,
+            dominantPalette: edits.colors || baseGenome.designGenome.visualDNA?.colors?.dominantPalette
+          },
+          typography: {
+            ...baseGenome.designGenome.visualDNA?.typography,
+            primaryFontFamily: edits.font || baseGenome.designGenome.visualDNA?.typography?.primaryFontFamily
+          }
+        }
+      }
+    };
+  };
+
+  const genomeA = useMemo(() => {
+    const base = allOptions.find(o => o.id === genomeAId) || allOptions[0];
+    return getGenomeWithEdits(base);
+  }, [genomeAId, allOptions, editedGenomes]);
+
+  const genomeB = useMemo(() => {
+    const base = allOptions.find(o => o.id === genomeBId) || allOptions[1] || allOptions[0];
+    return getGenomeWithEdits(base);
+  }, [genomeBId, allOptions, editedGenomes]);
+
+  const handleUpdateFont = (genomeId, newFont) => {
+    setEditedGenomes(prev => {
+      const existing = prev[genomeId] || {};
+      return {
+        ...prev,
+        [genomeId]: { ...existing, font: newFont }
+      };
+    });
+  };
+
+  const handleUpdateColor = (genomeId, colorIdx, newColor) => {
+    setEditedGenomes(prev => {
+      const base = allOptions.find(o => o.id === genomeId);
+      const originalPalette = base?.designGenome?.visualDNA?.colors?.dominantPalette || ["#161616", "#ffffff", "#e8e4d9", "#c9bb3f"];
+      const existing = prev[genomeId] || {};
+      const currentPalette = [...(existing.colors || originalPalette)];
+      currentPalette[colorIdx] = newColor;
+      
+      return {
+        ...prev,
+        [genomeId]: { ...existing, colors: currentPalette }
+      };
+    });
+  };
 
   // Mathematical blend operations
   const blendedPalette = useMemo(() => {
@@ -212,27 +438,75 @@ export function GenomeMixerPage({ designGenome = {}, scans = [] }) {
   const handleMix = () => {
     if (!genomeA || !genomeB) return;
 
-    const colorsStr = blendedPalette.join(", ");
+    const colorsStr = blendedPalette.map((c, i) => `- Swatch ${i + 1}: \`${c}\``).join("\n");
     const spacingStr = blendedSpacingScale.join(", ");
     const radiusStr = blendedRadiusScale.join(", ");
 
-    const prompt = `You are a principal frontend engineer. Build a unified visual prompt specification blending design DNA from two target sites:
+    const prompt = `# 🎭 DESIGN SYSTEM SYNTHESIS & BRIEF
+You are an elite Staff Frontend Engineer and Design Technologist. Your task is to build a high-fidelity, premium visual interface that synthesizes the design DNA of two source applications into a cohesive, state-of-the-art visual masterpiece.
 
-### 🧬 SOURCE A: ${genomeA.pageTitle} (${genomeA.domain})
-- Primary Font: ${genomeA.designGenome?.visualDNA?.typography?.primaryFontFamily || "System"}
+## 🧬 SOURCE LAYOUT & DESIGN SYSTEM DNA
 
-### 🧬 SOURCE B: ${genomeB.pageTitle} (${genomeB.domain})
-- Primary Font: ${genomeB.designGenome?.visualDNA?.typography?.primaryFontFamily || "System"}
+### 📐 SOURCE A: ${genomeA.pageTitle} (${genomeA.domain})
+- Core Design Principles: Structured hierarchy, clean boundaries.
+- Primary Font Family: \`${genomeA.designGenome?.visualDNA?.typography?.primaryFontFamily || "System"}\`
 
-### 🎛️ MIX PARAMETERS & BLENDED SYSTEM TOKENS
-- **Blend Weight:** ${(blendWeight * 100).toFixed(0)}% Source B / ${((1 - blendWeight) * 100).toFixed(0)}% Source A
-- **Strategy:** ${mergeStrategy}
-- **Interpolated Swatches:** ${colorsStr}
-- **Interpolated Spacings:** ${spacingStr}
-- **Interpolated Radii:** ${radiusStr}
-- **Blended Font Pairing:** Headings: \`${blendedFontHeading}\` / Body: \`${blendedFontBody}\`
+### 📐 SOURCE B: ${genomeB.pageTitle} (${genomeB.domain})
+- Core Design Principles: Fluid motion, immersive spacing grids.
+- Primary Font Family: \`${genomeB.designGenome?.visualDNA?.typography?.primaryFontFamily || "System"}\`
 
-Ensure layout components and color systems interpolate structural sizes and typography variables accordingly to target a WCAG AA visual grid specification.`;
+---
+
+## 🎛️ SYNTHESIZED SYSTEM CONFIGURATION (Weight: ${(blendWeight * 100).toFixed(0)}% Source B / ${((1 - blendWeight) * 100).toFixed(0)}% Source A)
+
+### 🎨 1. THE BLENDED PALETTE
+Configure your design system with this mathematically interpolated color system:
+${colorsStr}
+
+*Application Guidelines:* Implement these colors to ensure a minimum of 4.5:1 contrast ratio (WCAG AA compliant) for all text readability. Maintain a strict hierarchy where background surfaces use dark/light anchors and primary actions utilize high-energy accents.
+
+### 🔤 2. TYPOGRAPHIC PAIRING
+Ensure your typography system pairs the fonts as follows:
+- **Display & Headings:** \`${blendedFontHeading}\` (Apply with letter-spacing tracking \`-0.02em\` for a modern editorial feeling)
+- **Body, Controls & Copy:** \`${blendedFontBody}\` (Clean, highly readable font family, set with line-height of \`1.5\` or \`1.6\`)
+
+*Hierarchy Guidelines:*
+- \`h1\` / Main Titles: 3rem (48px) | bold | font-heading | tracking-tight
+- \`h2\` / Section Titles: 2rem (32px) | semibold | font-heading
+- \`h3\` / Sub-headings: 1.25rem (20px) | medium | font-heading
+- \`body\` / Controls: 0.875rem (14px) | regular | font-body
+
+### 📏 3. SPACING, GRID & ROUNDNESS DENSITY
+Interpolated spacing scale to map layout margins, padding, and gaps:
+- **Spacing Steps:** ${spacingStr}
+- **Border Radius Scale:** ${radiusStr}
+
+*Density Philosophy:* Enforce a layout density of \`${mergeStrategy}\`. Combine container paddings and component gaps to reflect this spacing scale to recreate the hybrid grid density. Keep layout boundaries and structural border lines thin and clean.
+
+---
+
+## 📦 COMPONENT ARCHITECTURE SPECIFICATION
+Translate this visual brief into structured markup using these component blueprints:
+
+1. **Global Shell & Navigation:**
+   - A clean layout header featuring the display typeface and high-contrast navigation links.
+   - Background canvas styled with the primary blended surface color and bordered bottom.
+
+2. **Hero Showcase Section:**
+   - Large display typography styling utilizing the display font.
+   - Primary action buttons using the blended accent color with hover-transform transition easing variables.
+
+3. **Content Grid / Cards:**
+   - Flexible responsive columns mapping to spacing variables.
+   - Cards styled with the secondary blended color and custom rounded corners.
+
+4. **Interactive Controls & Inputs:**
+   - Active controls should highlight with focus rings using the blended accent color.
+
+---
+
+## ⚡ CODING & COMPILING DIRECTIVE
+Use the provided CSS Variables and Tailwind Configuration to initialize the theme styles. Build a semantically clean, highly polished layout that feels alive, premium, responsive, and adheres precisely to the blended layout densities.`;
 
     setGeneratedPrompt(prompt.trim());
     setCopySuccess(false);
@@ -246,7 +520,6 @@ Ensure layout components and color systems interpolate structural sizes and typo
     setTimeout(() => setCopySuccess(false), 2000);
   };
 
-  // Dynamic CSS variables output
   const cssVariables = useMemo(() => {
     if (!genomeA || !genomeB) return "";
     return `:root {
@@ -306,16 +579,53 @@ ${blendedRadiusScale.map((r, idx) => `        scale${idx + 1}: "${r}",`).join("\
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Left Side: Genome A */}
         <Card className="space-y-3 bg-[var(--color-bgMuted)]">
-          <span className="font-caption block">Input Genome A</span>
-          <select
-            value={genomeAId}
-            onChange={(e) => setGenomeAId(e.target.value)}
-            className="w-full bg-[var(--color-bgCard)] border border-[var(--color-border)] rounded-[var(--radius-sm,2px)] px-2 py-1.5 focus:outline-none text-[var(--color-text)] font-mono text-xs cursor-pointer"
-          >
-            {allOptions.map(o => (
-              <option key={`a-${o.id}`} value={o.id}>{o.pageTitle} ({o.domain})</option>
-            ))}
-          </select>
+          <div className="flex justify-between items-center">
+            <span className="font-caption block">Input Genome A</span>
+            <div className="flex space-x-1.5">
+              <button 
+                onClick={() => setShowCrawlA(!showCrawlA)} 
+                className="text-[9px] font-mono px-2 py-0.5 bg-[var(--color-bgCard)] border border-[var(--color-border)] rounded text-[var(--color-text)] cursor-pointer hover:border-[var(--color-accent)] focus:outline-none"
+              >
+                {showCrawlA ? "Cancel" : "+ Crawl URL"}
+              </button>
+              <button 
+                onClick={() => setShowEditA(!showEditA)} 
+                className={`text-[9px] font-mono px-2 py-0.5 border rounded cursor-pointer focus:outline-none ${showEditA ? "bg-[var(--color-accent)] text-black border-transparent" : "bg-[var(--color-bgCard)] border-[var(--color-border)] text-[var(--color-text)] hover:border-[var(--color-accent)]"}`}
+              >
+                {showEditA ? "Save" : "Tweak DNA"}
+              </button>
+            </div>
+          </div>
+
+          {showCrawlA ? (
+            <div className="flex space-x-1 items-center animate-fade-in">
+              <input
+                type="text"
+                placeholder="e.g. linear.app"
+                value={crawlUrlA}
+                onChange={(e) => setCrawlUrlA(e.target.value)}
+                className="bg-[var(--color-bgCard)] border border-[var(--color-border)] rounded-[var(--radius-sm,2px)] px-1.5 py-1 text-[10px] text-[var(--color-text)] focus:outline-none font-mono flex-1"
+              />
+              <button 
+                onClick={handleCrawlA} 
+                disabled={crawlingA}
+                className="px-2 py-1 bg-[var(--color-accent)] text-black rounded text-[10px] font-bold cursor-pointer disabled:opacity-50"
+              >
+                {crawlingA ? "Analyzing..." : "Go"}
+              </button>
+            </div>
+          ) : (
+            <select
+              value={genomeAId}
+              onChange={(e) => setGenomeAId(e.target.value)}
+              className="w-full bg-[var(--color-bgCard)] border border-[var(--color-border)] rounded-[var(--radius-sm,2px)] px-2 py-1.5 focus:outline-none text-[var(--color-text)] font-mono text-xs cursor-pointer"
+            >
+              {allOptions.map(o => (
+                <option key={`a-${o.id}`} value={o.id}>{o.pageTitle} ({o.domain})</option>
+              ))}
+            </select>
+          )}
+
           {genomeA && (
             <div className="space-y-1 font-mono text-[10px] text-[var(--color-textMuted)] leading-relaxed">
               <div>Font: {genomeA.designGenome?.visualDNA?.typography?.primaryFontFamily || "System"}</div>
@@ -325,22 +635,94 @@ ${blendedRadiusScale.map((r, idx) => `        scale${idx + 1}: "${r}",`).join("\
                   <span key={i} className="w-3.5 h-3.5 rounded-[var(--radius-xs,2px)] border border-[var(--color-border)]" style={{ backgroundColor: c }} />
                 ))}
               </div>
+
+              {showEditA && (
+                <div className="pt-2 border-t border-[var(--color-border)] mt-2 space-y-2 animate-fade-in">
+                  <div className="flex flex-col space-y-0.5">
+                    <span className="text-[8px] uppercase text-[var(--color-textMuted)] font-bold">Font Family</span>
+                    <input
+                      type="text"
+                      value={genomeA.designGenome?.visualDNA?.typography?.primaryFontFamily || ""}
+                      onChange={(e) => handleUpdateFont(genomeA.id, e.target.value)}
+                      className="bg-[var(--color-bgCard)] border border-[var(--color-border)] rounded px-1 py-0.5 text-[9px] text-[var(--color-text)] focus:outline-none font-mono"
+                    />
+                  </div>
+                  <div className="flex flex-col space-y-0.5">
+                    <span className="text-[8px] uppercase text-[var(--color-textMuted)] font-bold">Swatches</span>
+                    <div className="grid grid-cols-2 gap-1">
+                      {(genomeA.designGenome?.visualDNA?.colors?.dominantPalette || []).slice(0, 4).map((c, i) => (
+                        <div key={i} className="flex items-center space-x-1">
+                          <input
+                            type="color"
+                            value={c.startsWith("#") && c.length === 7 ? c : "#000000"}
+                            onChange={(e) => handleUpdateColor(genomeA.id, i, e.target.value)}
+                            className="w-3.5 h-3.5 p-0 bg-transparent border-0 cursor-pointer rounded"
+                          />
+                          <input
+                            type="text"
+                            value={c}
+                            onChange={(e) => handleUpdateColor(genomeA.id, i, e.target.value)}
+                            className="bg-[var(--color-bgCard)] border border-[var(--color-border)] rounded px-1 py-0.5 text-[8px] text-[var(--color-text)] focus:outline-none font-mono w-full"
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </Card>
 
         {/* Right Side: Genome B */}
         <Card className="space-y-3 bg-[var(--color-bgMuted)]">
-          <span className="font-caption block">Input Genome B</span>
-          <select
-            value={genomeBId}
-            onChange={(e) => setGenomeBId(e.target.value)}
-            className="w-full bg-[var(--color-bgCard)] border border-[var(--color-border)] rounded-[var(--radius-sm,2px)] px-2 py-1.5 focus:outline-none text-[var(--color-text)] font-mono text-xs cursor-pointer"
-          >
-            {allOptions.map(o => (
-              <option key={`b-${o.id}`} value={o.id}>{o.pageTitle} ({o.domain})</option>
-            ))}
-          </select>
+          <div className="flex justify-between items-center">
+            <span className="font-caption block">Input Genome B</span>
+            <div className="flex space-x-1.5">
+              <button 
+                onClick={() => setShowCrawlB(!showCrawlB)} 
+                className="text-[9px] font-mono px-2 py-0.5 bg-[var(--color-bgCard)] border border-[var(--color-border)] rounded text-[var(--color-text)] cursor-pointer hover:border-[var(--color-accent)] focus:outline-none"
+              >
+                {showCrawlB ? "Cancel" : "+ Crawl URL"}
+              </button>
+              <button 
+                onClick={() => setShowEditB(!showEditB)} 
+                className={`text-[9px] font-mono px-2 py-0.5 border rounded cursor-pointer focus:outline-none ${showEditB ? "bg-[var(--color-accent)] text-black border-transparent" : "bg-[var(--color-bgCard)] border-[var(--color-border)] text-[var(--color-text)] hover:border-[var(--color-accent)]"}`}
+              >
+                {showEditB ? "Save" : "Tweak DNA"}
+              </button>
+            </div>
+          </div>
+
+          {showCrawlB ? (
+            <div className="flex space-x-1 items-center animate-fade-in">
+              <input
+                type="text"
+                placeholder="e.g. notion.so"
+                value={crawlUrlB}
+                onChange={(e) => setCrawlUrlB(e.target.value)}
+                className="bg-[var(--color-bgCard)] border border-[var(--color-border)] rounded-[var(--radius-sm,2px)] px-1.5 py-1 text-[10px] text-[var(--color-text)] focus:outline-none font-mono flex-1"
+              />
+              <button 
+                onClick={handleCrawlB} 
+                disabled={crawlingB}
+                className="px-2 py-1 bg-[var(--color-accent)] text-black rounded text-[10px] font-bold cursor-pointer disabled:opacity-50"
+              >
+                {crawlingB ? "Analyzing..." : "Go"}
+              </button>
+            </div>
+          ) : (
+            <select
+              value={genomeBId}
+              onChange={(e) => setGenomeBId(e.target.value)}
+              className="w-full bg-[var(--color-bgCard)] border border-[var(--color-border)] rounded-[var(--radius-sm,2px)] px-2 py-1.5 focus:outline-none text-[var(--color-text)] font-mono text-xs cursor-pointer"
+            >
+              {allOptions.map(o => (
+                <option key={`b-${o.id}`} value={o.id}>{o.pageTitle} ({o.domain})</option>
+              ))}
+            </select>
+          )}
+
           {genomeB && (
             <div className="space-y-1 font-mono text-[10px] text-[var(--color-textMuted)] leading-relaxed">
               <div>Font: {genomeB.designGenome?.visualDNA?.typography?.primaryFontFamily || "System"}</div>
@@ -350,6 +732,41 @@ ${blendedRadiusScale.map((r, idx) => `        scale${idx + 1}: "${r}",`).join("\
                   <span key={i} className="w-3.5 h-3.5 rounded-[var(--radius-xs,2px)] border border-[var(--color-border)]" style={{ backgroundColor: c }} />
                 ))}
               </div>
+
+              {showEditB && (
+                <div className="pt-2 border-t border-[var(--color-border)] mt-2 space-y-2 animate-fade-in">
+                  <div className="flex flex-col space-y-0.5">
+                    <span className="text-[8px] uppercase text-[var(--color-textMuted)] font-bold">Font Family</span>
+                    <input
+                      type="text"
+                      value={genomeB.designGenome?.visualDNA?.typography?.primaryFontFamily || ""}
+                      onChange={(e) => handleUpdateFont(genomeB.id, e.target.value)}
+                      className="bg-[var(--color-bgCard)] border border-[var(--color-border)] rounded px-1 py-0.5 text-[9px] text-[var(--color-text)] focus:outline-none font-mono"
+                    />
+                  </div>
+                  <div className="flex flex-col space-y-0.5">
+                    <span className="text-[8px] uppercase text-[var(--color-textMuted)] font-bold">Swatches</span>
+                    <div className="grid grid-cols-2 gap-1">
+                      {(genomeB.designGenome?.visualDNA?.colors?.dominantPalette || []).slice(0, 4).map((c, i) => (
+                        <div key={i} className="flex items-center space-x-1">
+                          <input
+                            type="color"
+                            value={c.startsWith("#") && c.length === 7 ? c : "#000000"}
+                            onChange={(e) => handleUpdateColor(genomeB.id, i, e.target.value)}
+                            className="w-3.5 h-3.5 p-0 bg-transparent border-0 cursor-pointer rounded"
+                          />
+                          <input
+                            type="text"
+                            value={c}
+                            onChange={(e) => handleUpdateColor(genomeB.id, i, e.target.value)}
+                            className="bg-[var(--color-bgCard)] border border-[var(--color-border)] rounded px-1 py-0.5 text-[8px] text-[var(--color-text)] focus:outline-none font-mono w-full"
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </Card>
