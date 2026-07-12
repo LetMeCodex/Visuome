@@ -87,8 +87,15 @@ export function GenomeMixerPage({ designGenome = {}, scans = [] }) {
 
   useEffect(() => {
     if (allOptions.length > 0) {
-      if (!genomeAId) setGenomeAId(allOptions[0]?.id);
-      if (!genomeBId) setGenomeBId(allOptions[Math.min(1, allOptions.length - 1)]?.id);
+      const hasActiveScan = allOptions.some(o => o.id === "active-scan");
+      if (hasActiveScan) {
+        setGenomeAId("active-scan");
+      } else if (!genomeAId) {
+        setGenomeAId(allOptions[0]?.id);
+      }
+      if (!genomeBId) {
+        setGenomeBId(allOptions[Math.min(1, allOptions.length - 1)]?.id);
+      }
     }
   }, [allOptions]);
 

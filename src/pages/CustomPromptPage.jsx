@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo } from "react";
 import Card from "../components/ui/Card.jsx";
 import Button from "../components/ui/Button.jsx";
 import Badge from "../components/ui/Badge.jsx";
@@ -6,93 +6,31 @@ import Badge from "../components/ui/Badge.jsx";
 export function CustomPromptPage({ designGenome = {}, report = {} }) {
   const scannedDomain = report?.page?.domain || report?.domain || "Active Website";
 
-  // Dynamic sections extraction from the scanned genome layout
-  const initialSections = useMemo(() => {
-    const layoutSections = designGenome?.layoutDNA?.sections || [];
-    if (layoutSections.length > 0) {
-      const result = {};
-      layoutSections.forEach((sec) => {
-        const label = sec.label || `${sec.role || "section"} ${sec.order}`;
-        result[label] = true;
-      });
-      return result;
-    }
-    return {
-      "Navigation Header": true,
-      "Hero Showcase": true,
-      "Features Card Grid": true,
-      "Pricing Module": false,
-      "Footer Details": true
-    };
-  }, [designGenome]);
+  // State configurations for building blocks
+  const [selectedSections, setSelectedSections] = useState({
+    "Navigation Header": true,
+    "Hero Showcase": true,
+    "Features Card Grid": true,
+    "Pricing Module": false,
+    "Footer Details": true
+  });
 
-  // Dynamic components extraction from the scanned report components
-  const initialComponents = useMemo(() => {
-    const comps = report?.components || designGenome?.components || {};
-    const foundKeys = Object.entries(comps)
-      .filter(([_, arr]) => arr && arr.length > 0)
-      .map(([k]) => k);
+  const [selectedComponents, setSelectedComponents] = useState({
+    "Buttons": true,
+    "Cards": true,
+    "Form Inputs": false,
+    "Modals": false,
+    "Badges": true
+  });
 
-    if (foundKeys.length > 0) {
-      const result = {};
-      foundKeys.forEach((key) => {
-        const label = key.charAt(0).toUpperCase() + key.slice(1).replace(/s$/, ""); // e.g., buttons -> Button
-        result[label] = true;
-      });
-      return result;
-    }
-    return {
-      "Buttons": true,
-      "Cards": true,
-      "Form Inputs": false,
-      "Modals": false,
-      "Badges": true
-    };
-  }, [report, designGenome]);
-
-  const initialLayout = useMemo(() => {
-    const grid = designGenome?.layoutDNA?.gridSystem;
-    if (grid && !/no dominant/i.test(grid)) return "Strict CSS Grid";
-    const flow = designGenome?.layoutDNA?.contentFlow;
-    if (flow && /flex/i.test(flow)) return "Fluid Flex layout";
-    return "Strict CSS Grid";
-  }, [designGenome]);
-
-  const initialTypography = useMemo(() => {
-    const heading = designGenome?.visualDNA?.typography?.headingFont;
-    const body = designGenome?.visualDNA?.typography?.bodyFont;
-    if (heading && body) return `${heading} & ${body} Pairing`;
-    return "Unbounded & Manrope Pairing";
-  }, [designGenome]);
-
-  const [selectedSections, setSelectedSections] = useState(initialSections);
-  const [selectedComponents, setSelectedComponents] = useState(initialComponents);
-
-  const [layout, setLayout] = useState(initialLayout);
-  const [typography, setTypography] = useState(initialTypography);
+  const [layout, setLayout] = useState("Strict CSS Grid");
+  const [typography, setTypography] = useState("Unbounded & Manrope Pairing");
   const [animation, setAnimation] = useState("Spring Hover Interactions");
   const [accessibility, setAccessibility] = useState("WCAG AA Contrast Compliant");
   const [performance, setPerformance] = useState("Optimized System Fonts");
   const [responsive, setResponsive] = useState("Dynamic Column Collapse");
   const [framework, setFramework] = useState("React");
   const [outputFormat, setOutputFormat] = useState("Tailwind CSS");
-
-  // Synchronize dynamic checklists and params when the active scan/genome is changed
-  useEffect(() => {
-    setSelectedSections(initialSections);
-  }, [initialSections]);
-
-  useEffect(() => {
-    setSelectedComponents(initialComponents);
-  }, [initialComponents]);
-
-  useEffect(() => {
-    setLayout(initialLayout);
-  }, [initialLayout]);
-
-  useEffect(() => {
-    setTypography(initialTypography);
-  }, [initialTypography]);
 
   const [customRequirements, setCustomRequirements] = useState("");
   const [generatedPrompt, setGeneratedPrompt] = useState("");
@@ -215,9 +153,6 @@ Ensure components map cleanly to these variables and compile into semantic marku
                   <option>Strict CSS Grid</option>
                   <option>Fluid Flex layout</option>
                   <option>Asymmetric Offsets</option>
-                  {!["Strict CSS Grid", "Fluid Flex layout", "Asymmetric Offsets"].includes(layout) && (
-                    <option value={layout}>{layout}</option>
-                  )}
                 </select>
               </div>
 
@@ -227,9 +162,6 @@ Ensure components map cleanly to these variables and compile into semantic marku
                   <option>Unbounded & Manrope Pairing</option>
                   <option>System Sans pairings</option>
                   <option>Serif display headers</option>
-                  {!["Unbounded & Manrope Pairing", "System Sans pairings", "Serif display headers"].includes(typography) && (
-                    <option value={typography}>{typography}</option>
-                  )}
                 </select>
               </div>
 
