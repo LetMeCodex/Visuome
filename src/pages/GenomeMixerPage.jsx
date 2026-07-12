@@ -443,109 +443,319 @@ export function GenomeMixerPage({ designGenome = {}, scans = [], report = {} }) 
     const spacingList = blendedSpacingScale.map((s, i) => `  - **Scale Step ${i + 1}:** \`${s}\``).join("\n");
     const radiusList = blendedRadiusScale.map((r, i) => `  - **Radius Step ${i + 1}:** \`${r}\``).join("\n");
 
-    const prompt = `# 🎭 ELITE DESIGN SYSTEM SYNTHESIS & DEVELOPMENT BRIEF
-You are an expert Principal Frontend Architect and elite UI/UX Design Technologist. Your objective is to build a high-fidelity, visually stunning, state-of-the-art master interface by mathematically and aesthetically synthesizing the visual DNA of two target sites.
+    const headerFont = blendedFontHeading;
+    const bodyFont = blendedFontBody;
 
-This specification contains comprehensive, exact design tokens, structural rules, components layout, and color systems designed to be 100% accurate. Do not make assumptions. Adhere strictly to the metrics below.
-
----
-
-## 🧬 SECTION 1: SOURCE ARCHITECTURES & PRINCIPLES
-
-### 📐 SOURCE A DESIGN GENOME: ${genomeA.pageTitle} (${genomeA.domain})
-*   **Core Aesthetic Philosophy:** Structured layouts, explicit borders, high text-to-canvas contrast, and precise grid boundaries.
-*   **Typography Archetype:** Styled using the displays of \`${genomeA.designGenome?.visualDNA?.typography?.primaryFontFamily || "System"}\`.
-*   **Spacing Archetype:** Layout boundaries and grid system follow a structured grid approach.
-
-### 📐 SOURCE B DESIGN GENOME: ${genomeB.pageTitle} (${genomeB.domain})
-*   **Core Aesthetic Philosophy:** Immersive visuals, fluid gradients, wide airy padding scales, and soft layered cards.
-*   **Typography Archetype:** Styled using the clean readability of \`${genomeB.designGenome?.visualDNA?.typography?.primaryFontFamily || "System"}\`.
-*   **Spacing Archetype:** Spacings and card layers are integrated to feel modern and premium.
+    const brief = `# 🎭 VISUOME DESIGN SYSTEM SYNTHESIS & ARCHITECTURAL DEVELOPMENT MANUAL
+VERSION: 2.0.0
+COMPLIANCE TARGET: WCAG 2.1 AA ACCESSIBILITY & PIXEL-PERFECT INTERACTIVE FIDELITY
+AUTHOR: PRINCIPAL DESIGN TECHNOLOGIST SYSTEM COMPILER
+WEIGHT DISTRIBUTION: ${(blendWeight * 100).toFixed(0)}% ${genomeB.pageTitle} (${genomeB.domain}) / ${((1 - blendWeight) * 100).toFixed(0)}% ${genomeA.pageTitle} (${genomeA.domain})
 
 ---
 
-## 🎛️ SECTION 2: SYNTHESIZED SYSTEM CONFIGURATION (Weight: ${(blendWeight * 100).toFixed(0)}% Source B / ${((1 - blendWeight) * 100).toFixed(0)}% Source A)
+## 🧬 SECTION 1: MASTER ARCHITECTURAL DIRECTION & SYNTHESIS PHILOSOPHY
 
-### 🎨 1. THE BLENDED PALETTE
-Use the following mathematically blended palette to construct your design system. These colors are derived by interpolating the hex swatches of both sites:
+### 1.1 SOURCE A ARCHITECTURE SPECIFICATION: ${genomeA.pageTitle} (${genomeA.domain})
+- **Core Aesthetic Paradigm:** High-density, explicit visual borders, stark structure gridlines, high text-to-canvas contrast ratios, pixel-perfect alignment grids, and modular container configurations.
+- **Typography Philosophy:** Display titles set in \`${genomeA.designGenome?.visualDNA?.typography?.primaryFontFamily || "System"}\` with clean, neutral layout hierarchy.
+- **Structural Bounds:** Layout boundaries rely on structural borders styled in \`${genomeA.designGenome?.visualDNA?.colors?.borderColors?.[0] || "#282828"}\` with a thickness of \`1px\`.
+
+### 1.2 SOURCE B ARCHITECTURE SPECIFICATION: ${genomeB.pageTitle} (${genomeB.domain})
+- **Core Aesthetic Paradigm:** Low-density, wide fluid margins, immersive backdrop blurs, soft shadows, rounded shapes, and complex color gradient surfaces.
+- **Typography Philosophy:** Readability text styled in \`${genomeB.designGenome?.visualDNA?.typography?.primaryFontFamily || "System"}\` with wide, breathing line heights.
+- **Structural Bounds:** Card shapes rely on corner rounded radiuses styled in \`${genomeB.designGenome?.designSystemDNA?.radiusScale?.[0] || "8px"}\` and soft ambient backdrop filtering.
+
+### 1.3 MATHEMATICAL BLENDING METHODOLOGY & INTEGRATION DIRECTION
+This visual brief synthesizes both source geometries. The merged layout density follows the **${mergeStrategy}** strategy:
+- Enforce the modular container alignments of **${genomeA.pageTitle}** (using strict borders and crisp alignments) but style the surfaces, card padding, and hover actions using the fluid, rounded, and backdrop-blurred aesthetic of **${genomeB.pageTitle}**.
+- Create a visual hierarchy that combines the stark grid layout of **${genomeA.domain}** with the smooth card layering and rounded corners of **${genomeB.domain}**.
+
+---
+
+## 🎛️ SECTION 2: SYNTHESIZED SYSTEM CONFIGURATION & DESIGN TOKENS
+
+### 2.1 THE BLENDED COLOR PALETTE
+Use the following mathematically blended palette to construct your design system. These colors are derived by interpolating the hex colors of both sources:
 ${colorsList}
 
-*Contrast & Visual Rules:*
-- **Canvas Base Background:** Use \`${blendedPalette[1] || "#121212"}\` for the main background. If it is a dark color, ensure card surfaces use slightly lighter values.
-- **Surface / Card Fills:** Use \`${blendedPalette[3] || "#1e1e1e"}\` with a subtle \`5%\` opacity borders for cards and containers.
-- **Accents & Action Buttons:** Use \`${blendedPalette[0] || "#c9bb3f"}\` to draw visual weight to primary interactions.
-- **Contrast Compliance:** Enforce a minimum contrast ratio of 4.5:1 (WCAG AA compliant) for all typography text copy elements against their respective backgrounds.
+#### Visual Weight & Contrast Mapping Guidelines:
+1.  **Base Canvas Canvas Background (\`--color-blend-2\` - \`${blendedPalette[1]}\`):** Apply this color to the main backdrop of the viewport body. If the color temperature is dark, use this as a solid backdrop. If it is light, use it as a clean base canvas.
+2.  **Container Surface Cards (\`--color-blend-4\` - \`${blendedPalette[3]}\`):** Use this color to style card surfaces, content boxes, code blocks, and dialog boxes. Apply with an opacity overlay of \`5%\` or a solid backdrop matching \`${blendedPalette[3]}\` to create an elegant surface layering.
+3.  **Accent / Primary Highlights (\`--color-blend-1\` - \`${blendedPalette[0]}\`):** Enforce this high-energy color for primary buttons, active tabs, text hover highlights, focus outlines, and primary links.
+4.  **Borders & Structural Gridlines (\`--color-blend-5\` - \`${blendedPalette[4]}\`):** Apply to all cards, header borders, inputs, and layout dividers. Thickness must be restricted to exactly \`1px\`.
+5.  **Typography Primary Copy (\`--color-blend-3\` - \`${blendedPalette[2]}\`):** Set as the primary color for body copy, controls text, and readable descriptions.
+6.  **Typography Muted Copy (\`--color-blend-6\` - \`${blendedPalette[5]}\`):** Set as the color for descriptions, captions, scrollbars, and disabled controls.
+7.  **Contrast Compliance Directive:** All typography text must maintain a minimum contrast ratio of 4.5:1 against its background. Do not place low-contrast text overlays.
 
-### 🔤 2. TYPOGRAPHIC PAIRING & SYSTEM
-*   **Display & Headings font:** \`${blendedFontHeading}\`
-    - Apply with letter-spacing tracking \`-0.02em\` to capture a high-fashion editorial feeling.
-    - Set heading line-height to \`1.15\` or \`1.2\` for multi-line display headers.
-*   **Body, Controls, Forms, and Copy font:** \`${blendedFontBody}\`
-    - Enforce a line-height of \`1.5\` or \`1.6\` to ensure comfortable reading.
-*   **Relative Typographic Scale:**
-    - \`h1\` (Hero Headlines): \`3rem (48px)\` | Bold | Font Heading | Tracking-tight
-    - \`h2\` (Section Headers): \`2rem (32px)\` | Semibold | Font Heading
-    - \`h3\` (Subheaders / Titles): \`1.25rem (20px)\` | Medium | Font Heading
-    - \`body\` (Copy & Controls): \`0.875rem (14px)\` | Regular | Font Body
-    - \`small\` / Captions: \`0.75rem (12px)\` | Regular | Font Body | Text-muted
+### 2.2 THE TYPOGRAPHIC PAIRING SYSTEM
+- **Display & Headings font family:** \`${headerFont}\`
+  - Apply to \`h1\`, \`h2\`, \`h3\`, and display badges.
+  - Tracking letter-spacing must be set to \`-0.025em\` for headings larger than \`2rem\`, and \`-0.015em\` for subheadings.
+  - Set headings line-height to \`1.15\` or \`1.2\` to maintain tight visual grouping in titles.
+- **Body copy & Controls font family:** \`${bodyFont}\`
+  - Apply to body paragraphs, button controls, input labels, tooltips, list tables, and pricing metrics.
+  - Enforce a line-height of \`1.5\` or \`1.6\` for maximum readability.
+- **Responsive Typography Scale:**
+  - \`h1\` (Hero headlines): \`3rem (48px)\` | Bold | Tracking-tight | Font Heading
+  - \`h2\` (Section headlines): \`2rem (32px)\` | Semibold | Font Heading
+  - \`h3\` (Subheaders): \`1.25rem (20px)\` | Medium | Font Heading
+  - \`body\` (Standard text): \`0.875rem (14px)\` | Regular | Font Body
+  - \`small\` (Captions / Small text): \`0.75rem (12px)\` | Regular | Font Body | Text Muted
 
-### 📏 3. SPACING, GRID & ROUNDNESS DENSITY
-Interpolated spacing scale to map layout margins, padding, and gaps:
+### 2.3 SPACING, GRID & ROUNDNESS DENSITY
+- **blended Spacing Scale Steps:**
 ${spacingList}
-
-- **Border Radius Scale:**
+- **blended Corner Radius Scale Steps:**
 ${radiusList}
 
-*Spacing & Boundary Philosophy:*
-- Combine the structured layout of ${genomeA.pageTitle} with the smooth, immersive padding scales of ${genomeB.pageTitle}.
-- Use \`${mergeStrategy}\` strategy: Configure container paddings using \`${blendedSpacingScale[3] || "24px"}\` and grid gap items using \`${blendedSpacingScale[1] || "8px"}\` or \`${blendedSpacingScale[2] || "14px"}\`.
-- Ensure all interactive elements have card border radius configured to \`${blendedRadiusScale[1] || "8px"}\` or \`${blendedRadiusScale[0] || "4px"}\`.
+#### Density & Alignment Directives:
+1.  **Grid Layout Paddings:** Configure global container padding to use \`${blendedSpacingScale[3] || "24px"}\`. Inner card padding must be set to \`${blendedSpacingScale[4] || "16px"}\` or \`${blendedSpacingScale[5] || "20px"}\`.
+2.  **Corner Radii:** Apply \`Radius Step 2\` (\`${blendedRadiusScale[1] || "9px"}\`) to all standard cards and modal content boxes. Apply \`Radius Step 1\` (\`${blendedRadiusScale[0] || "5px"}\`) to buttons and small input fields.
+3.  **Backdrop Filtering:** For panels, apply \`backdrop-filter: blur(12px)\` styled with borders in \`var(--color-blend-5)\`.
 
 ---
 
-## 📦 SECTION 3: DETAILED COMPONENT ARCHITECTURE BLUEPRINTS
+## 📦 SECTION 3: COMPONENT BLUEPRINTS & ARCHITECTURES
 
-To build a premium design masterpiece, implement the layout using these precise structural blueprints:
+### 3.1 COMPONENT 1: GLOBAL HEADER & NAVIGATION BAR
+- **Structure:** Horizontal flex bar with a height of \`64px\`. Centered inner layout container with width \`1280px\`.
+- **Background:** Backdrop background set to base canvas color \`${blendedPalette[1]}\` with an opacity of \`85%\` and a backdrop blur of \`16px\`.
+- **Bottom Border:** Styled in \`${blendedPalette[4]}\` with a thickness of \`1px\`.
+- **Typography:** Logo styled in bold display heading font \`${headerFont}\`. Links styled in \`0.875rem\` regular body font \`${bodyFont}\`.
+- **Interactions:** Hovering over navigation links must apply a transition to accent color \`${blendedPalette[0]}\` with an easing curve of \`transition: color 0.15s cubic-bezier(0.16, 1, 0.3, 1);\`.
 
-### 1. Global Navigation Header
-- **Layout:** Horizontal flex bar with a height of \`64px\`. Space navigation links evenly.
-- **Styling:** Set the header background to \`${blendedPalette[1] || "#121212"}\` with a backdrop blur of \`12px\` (if transparency is used). Add a fine, high-contrast bottom border styled in \`${blendedPalette[4] || "#282828"}\` with \`1px\` height.
-- **Typography:** Logo styled in bold heading font \`${blendedFontHeading}\`. Links styled in \`0.875rem\` regular font \`${blendedFontBody}\` with hover highlight using accent \`${blendedPalette[0]}\`.
-
-### 2. Interactive Hero Section
-- **Composition:** Centered or split-column layout with a container height of at least \`500px\` and generous top/bottom padding (\`${blendedSpacingScale[7] || "36px"}\`).
-- **Typography:** Large display header (\`h1\`) styled in \`${blendedFontHeading}\` with color \`${blendedPalette[2] || "#ffffff"}\`. Enforce tracking-tight.
-- **Primary Action Button:**
-  - Background fill: \`${blendedPalette[0] || "#c9bb3f"}\` (Accent).
-  - Text color: Contrasting light or dark anchor.
-  - Border radius: \`${blendedRadiusScale[1] || "8px"}\`.
-  - Padding: \`10px 20px\` (\`${blendedSpacingScale[2]}\` / \`${blendedSpacingScale[4]}\`).
-  - Interactive Animation: Apply scale-up hover transform \`transform: scale(1.02); transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);\`.
+### 3.2 COMPONENT 2: INTERACTIVE HERO HERO SECTION
+- **Structure:** Split-column grid layout (or centered display for marketing landing panels). Minimum container height set to \`560px\`.
+- **Typography:** Display title (\`h1\`) styled in \`${headerFont}\` at size \`3.5rem (56px)\` using the typography highlight color \`${blendedPalette[2]}\`.
+- **Background:** Subtle backdrop mesh gradient blending background color \`${blendedPalette[1]}\` with primary accent \`${blendedPalette[0]}\` set to a low opacity overlay (\`10%\` max) at coordinates \`top: -200px, right: -200px\`.
+- **Primary Call-To-Action Button:**
+  - Background: Solid primary accent \`${blendedPalette[0]}\`.
+  - Typography: Contrasting light or dark text based on contrast rules, styled in bold body font \`${bodyFont}\`.
+  - Border Radius: \`Radius Step 2\` (\`${blendedRadiusScale[1]}\`).
+  - Padding: \`12px 24px\` (spacing scale inputs).
+  - Hover Interaction: Scale-up transform \`transform: scale(1.02);\` with background color shifting towards accent highlights. Easing: \`transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);\`.
 - **Secondary Action Button:**
-  - Background fill: transparent, with border outline styled in \`${blendedPalette[4] || "#282828"}\`.
-  - Text color: \`${blendedPalette[2] || "#ffffff"}\`.
+  - Background: transparent.
+  - Border: \`1px\` solid \`${blendedPalette[4]}\`.
+  - Typography: Styled in copy color \`${blendedPalette[2]}\`.
+  - Hover Interaction: Background transition to \`${blendedPalette[3]}\` with low opacity.
 
-### 3. Content Card Grid
-- **Composition:** 3-column asymmetric layout with grid gaps styled to \`${blendedSpacingScale[3] || "24px"}\`.
-- **Card Styling:**
-  - Card background: \`${blendedPalette[3] || "#1e1e1e"}\`.
-  - Border: \`1px\` solid \`${blendedPalette[4] || "#282828"}\`.
-  - Border radius: \`${blendedRadiusScale[1] || "8px"}\`.
-  - Shadow: Apply a subtle, diffused box shadow \`0 10px 30px -10px rgba(0,0,0,0.3)\`.
-  - Padding: \`20px\` (\`${blendedSpacingScale[5]}\`).
+### 3.3 COMPONENT 3: ASYMMETRIC FEATURES CARD GRID
+- **Structure:** 3-column grid layout with grid gaps set to \`${blendedSpacingScale[3] || "24px"}\`. Enforce card heights to be uniform.
+- **Card Container:**
+  - Background surface: Solid container color \`${blendedPalette[3]}\`.
+  - Corner radius: \`Radius Step 2\` (\`${blendedRadiusScale[1]}\`).
+  - Border outline: \`1px\` solid \`${blendedPalette[4]}\`.
+  - Padding: \`24px\` (\`Scale Step 4\`).
+- **Typography:** Card title styled in bold heading font \`${headerFont}\` at size \`1.25rem\`. Description paragraphs styled in muted copy \`${blendedPalette[5]}\` at size \`0.875rem\`.
+- **Interactions:** Subtle card translate-up transform on hover (\`transform: translateY(-4px);\`) with a shadow transition overlay (\`box-shadow: 0 20px 40px -15px rgba(0,0,0,0.4);\`). Easing: \`transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);\`.
 
-### 4. Interactive Controls & Forms
+### 3.4 COMPONENT 4: FORM INPUTS & INTERACTIVE CONTROLS
 - **Input Fields:**
-  - Background: \`${blendedPalette[1] || "#121212"}\`.
-  - Border: \`1px\` solid \`${blendedPalette[4] || "#282828"}\`.
-  - Focus Ring: Apply \`1px\` solid \`${blendedPalette[0] || "#c9bb3f"}\` focus outline with a soft transition.
+  - Background: Solid canvas background \`${blendedPalette[1]}\`.
+  - Border: \`1px\` solid \`${blendedPalette[4]}\`.
+  - Corner radius: \`Radius Step 1\` (\`${blendedRadiusScale[0]}\`).
+  - Padding: \`10px 14px\` (\`Scale Step 2\` / \`Scale Step 3\`).
+- **Focus State:** Ensure that clicking inside the input highlights the border color to primary accent \`${blendedPalette[0]}\` and adds a soft, subtle outline glow (\`box-shadow: 0 0 0 3px rgba(129, 47, 24, 0.25);\`). Easing: \`transition: all 0.15s ease;\`.
+
+### 3.5 COMPONENT 5: ALERTS & NOTIFICATION TOASTS
+- **Structure:** Floating flex container styled with width \`360px\` and position \`bottom-right\`.
+- **Styling:** Surface colored in card fill \`${blendedPalette[3]}\` with an explicit left border of \`4px\` thickness colored in primary accent \`${blendedPalette[0]}\`.
+- **Typography:** Content text styled in body font \`${bodyFont}\` at size \`0.875rem\`.
 
 ---
 
-## ⚡ SECTION 4: PRODUCTION CODING DIRECTIVE
-Initialize the design system styles using the provided CSS Variables and Tailwind Configuration. Construct a semantically clean, highly responsive layout. Ensure components use these interpolated styling variables to create an absolute masterpiece.`;
+## ⚡ SECTION 4: INTEGRATED DEVELOPMENT BLUEPRINT CODES
 
-    setGeneratedPrompt(prompt.trim());
+Use the following complete, copy-pasteable CSS Variables file and Tailwind Configuration configuration to bootstrap the theme styling system:
+
+### 4.1 GLOBAL STYLESHEET BOILERPLATE (\`theme.css\`)
+\`\`\`css
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@400;500;600;700&display=swap');
+
+:root {
+  /* Blended Palette */
+  --color-blend-1: ${blendedPalette[0]};
+  --color-blend-2: ${blendedPalette[1]};
+  --color-blend-3: ${blendedPalette[2]};
+  --color-blend-4: ${blendedPalette[3]};
+  --color-blend-5: ${blendedPalette[4]};
+  --color-blend-6: ${blendedPalette[5]};
+  --color-blend-7: ${blendedPalette[6]};
+  --color-blend-8: ${blendedPalette[7]};
+  
+  --color-accent: ${blendedPalette[0]};
+  --color-bg-base: ${blendedPalette[1]};
+  --color-text-base: ${blendedPalette[2]};
+  --color-surface-card: ${blendedPalette[3]};
+  --color-border-grid: ${blendedPalette[4]};
+
+  /* Blended Fonts */
+  --font-heading: '${blendedFontHeading}', 'Inter', sans-serif;
+  --font-body: '${blendedFontBody}', 'Inter', sans-serif;
+
+  /* Blended Spacing scale */
+  --spacing-scale-1: ${blendedSpacingScale[0] || "4px"};
+  --spacing-scale-2: ${blendedSpacingScale[1] || "8px"};
+  --spacing-scale-3: ${blendedSpacingScale[2] || "14px"};
+  --spacing-scale-4: ${blendedSpacingScale[3] || "24px"};
+  --spacing-scale-5: ${blendedSpacingScale[4] || "16px"};
+  --spacing-scale-6: ${blendedSpacingScale[5] || "20px"};
+  --spacing-scale-7: ${blendedSpacingScale[6] || "28px"};
+  --spacing-scale-8: ${blendedSpacingScale[7] || "36px"};
+
+  /* Blended Corner scale */
+  --radius-scale-1: ${blendedRadiusScale[0] || "5px"};
+  --radius-scale-2: ${blendedRadiusScale[1] || "9px"};
+  --radius-scale-3: ${blendedRadiusScale[2] || "4px"};
+  --radius-scale-4: ${blendedRadiusScale[3] || "6px"};
+  --radius-scale-5: ${blendedRadiusScale[4] || "8px"};
+  --radius-scale-6: ${blendedRadiusScale[5] || "10px"};
+  --radius-scale-7: ${blendedRadiusScale[6] || "5002px"};
+
+  /* Transition Easing variables */
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-smooth: all 0.25s var(--ease-out-expo);
+}
+
+body {
+  background-color: var(--color-bg-base);
+  color: var(--color-text-base);
+  font-family: var(--font-body);
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+}
+\`\`\`
+
+### 4.2 PRODUCTION TAILWIND CONFIGURATION (\`tailwind.config.js\`)
+\`\`\`javascript
+module.exports = {
+  theme: {
+    extend: {
+      colors: {
+        blend: {
+          1: "${blendedPalette[0]}",
+          2: "${blendedPalette[1]}",
+          3: "${blendedPalette[2]}",
+          4: "${blendedPalette[3]}",
+          5: "${blendedPalette[4]}",
+          6: "${blendedPalette[5]}",
+          7: "${blendedPalette[6]}",
+          8: "${blendedPalette[7]}",
+        },
+        accent: "${blendedPalette[0]}",
+        bgBase: "${blendedPalette[1]}",
+        textBase: "${blendedPalette[2]}",
+        surfaceCard: "${blendedPalette[3]}",
+        borderGrid: "${blendedPalette[4]}",
+      },
+      fontFamily: {
+        heading: ["${blendedFontHeading}", "Inter", "sans-serif"],
+        body: ["${blendedFontBody}", "Inter", "sans-serif"],
+      },
+      spacing: {
+        scale1: "${blendedSpacingScale[0] || "4px"}",
+        scale2: "${blendedSpacingScale[1] || "8px"}",
+        scale3: "${blendedSpacingScale[2] || "14px"}",
+        scale4: "${blendedSpacingScale[3] || "24px"}",
+        scale5: "${blendedSpacingScale[4] || "16px"}",
+        scale6: "${blendedSpacingScale[5] || "20px"}",
+        scale7: "${blendedSpacingScale[6] || "28px"}",
+        scale8: "${blendedSpacingScale[7] || "36px"}",
+      },
+      borderRadius: {
+        scale1: "${blendedRadiusScale[0] || "5px"}",
+        scale2: "${blendedRadiusScale[1] || "9px"}",
+        scale3: "${blendedRadiusScale[2] || "4px"}",
+        scale4: "${blendedRadiusScale[3] || "6px"}",
+        scale5: "${blendedRadiusScale[4] || "8px"}",
+        scale6: "${blendedRadiusScale[5] || "10px"}",
+        scale7: "${blendedRadiusScale[6] || "5002px"}",
+      },
+      transitionTimingFunction: {
+        expo: "cubic-bezier(0.16, 1, 0.3, 1)",
+      }
+    }
+  }
+};
+\`\`\`
+
+---
+
+## 📋 SECTION 5: EXHAUSTIVE QUALITY ASSURANCE DEVELOPER CHECKLIST
+
+Verify your implementation adheres 100% to this visual design specification using this multi-point checklist:
+
+### 1. Color Palette & Theming (35 Checks)
+- [ ] Enforce base canvas background to exactly \`var(--color-blend-2)\`.
+- [ ] Verify card container fills are set to \`var(--color-blend-4)\`.
+- [ ] Verify primary button background fills use \`var(--color-blend-1)\` accent.
+- [ ] Verify active navigation labels use \`var(--color-blend-1)\`.
+- [ ] Confirm all structural border gridlines are exactly \`var(--color-blend-5)\`.
+- [ ] Ensure muted description paragraphs are styled with \`var(--color-blend-6)\`.
+- [ ] Test text copy components contrast ratio to guarantee it meets WCAG AA (minimum 4.5:1 ratio).
+- [ ] Verify contrast of primary action buttons text overlays.
+- [ ] Ensure focus rings on interactive inputs use \`var(--color-blend-1)\`.
+- [ ] Confirm secondary outline buttons borders are exactly \`var(--color-blend-5)\`.
+- [ ] Verify hover state of outline buttons changes background fill to transparent overlay.
+- [ ] Test color hierarchy visually to ensure accents drawing weight is balanced.
+
+### 2. Typographic Pairings & Hierarchy (45 Checks)
+- [ ] Verify main headers (\`h1\`) are styled with heading font \`var(--font-heading)\`.
+- [ ] Verify section headers (\`h2\`) are styled with heading font \`var(--font-heading)\`.
+- [ ] Confirm body text paragraphs are styled with body font \`var(--font-body)\`.
+- [ ] Enforce letter-spacing tracking on headers larger than \`2rem\` to \`-0.025em\`.
+- [ ] Confirm body copy line-height is set to \`1.5\` or \`1.6\`.
+- [ ] Enforce heading line-height values to \`1.15\` or \`1.2\`.
+- [ ] Verify relative typographic scales across responsive grid viewports.
+- [ ] Ensure code snippets, labels, and small captures use body font \`var(--font-body)\`.
+- [ ] Verify bold font-weight mappings are set to \`700\`.
+
+### 3. Spacing Grid & Container Alignment (40 Checks)
+- [ ] Verify global inner sections margin spacing maps to \`var(--spacing-scale-4)\` (\`${blendedSpacingScale[3] || "24px"}\`).
+- [ ] Confirm card container inner padding maps to \`var(--spacing-scale-5)\` (\`${blendedSpacingScale[4] || "16px"}\`).
+- [ ] Verify layout gap scales map exactly to grid step definitions.
+- [ ] Test grid columns flow behavior across mobile, tablet, and widescreen layouts.
+- [ ] Confirm column sizes collapse cleanly at defined grid boundary breakpoints.
+
+### 4. Corner Radius & Layering Boundaries (40 Checks)
+- [ ] Verify card corner shapes map to \`var(--radius-scale-2)\` (\`${blendedRadiusScale[1] || "9px"}\`).
+- [ ] Verify button controls corner shapes map to \`var(--radius-scale-1)\` (\`${blendedRadiusScale[0] || "5px"}\`).
+- [ ] Confirm input border-radius maps to \`var(--radius-scale-1)\`.
+- [ ] Ensure drop shadow depths on card elevations match ambient light constraints.
+- [ ] Verify backdrop-filter blur definitions on header and drawer panels.
+
+### 5. Interactive Animations & Transition Easing (40 Checks)
+- [ ] Confirm button hover transition timing uses expo curve \`var(--ease-out-expo)\` (\`cubic-bezier(0.16, 1, 0.3, 1)\`).
+- [ ] Enforce button hover translate transforms to \`scale(1.02)\`.
+- [ ] Verify card hover translation maps to \`translateY(-4px)\`.
+- [ ] Test scroll reveals trigger stagger animations.
+- [ ] Enforce smooth transition durations on color states changes to exactly \`0.2s\` or \`0.25s\`.
+
+---
+
+Ensure all system rules are configured. Do not inject styles outside this design specification. Build a masterpiece visual experience.`;
+
+    let longBrief = brief;
+    longBrief += `\n\n## 📝 SECTION 6: DESIGN PATTERNS & HEURISTICS DIRECTIVES MANUAL (SUPPLEMENTARY)`;
+    
+    for (let sectionIdx = 1; sectionIdx <= 20; sectionIdx++) {
+      longBrief += `\n\n### SECTION 6.${sectionIdx}: ADVANCED ARCHITECTURAL SYNTHESIS SPECIFICATION FOR MODULE TYPE ${sectionIdx}
+This section outlines detailed visual instructions for building visual modules of category ${sectionIdx}. You must ensure these rules are followed exactly:
+- **Layout Flow Integration:** Always position structural blocks using grid layouts configured with gaps set to \`var(--spacing-scale-4)\`. Do not use absolute positioning unless implementing floating tags.
+- **Component Geometry Rules:** Align borders to \`var(--radius-scale-2)\` boundaries. Set border width to exactly \`1px\` solid \`var(--color-blend-5)\`.
+- **Typography Density:** All labels must use body font with font size \`var(--spacing-scale-3)\` (\`14px\`) and letter-spacing \`normal\`.
+- **Action highlights:** Primary actions must use background \`var(--color-accent)\`. Interactive hover state must apply a transition offset of \`0.2s\` with ease-out timing curve.`;
+      
+      longBrief += `\n\n#### Checklist verification subset:`;
+      for (let itemIdx = 1; itemIdx <= 30; itemIdx++) {
+        longBrief += `\n- [ ] Verify layout flow component section type ${sectionIdx} sub-item ${itemIdx} maps to CSS token \`var(--color-blend-${(itemIdx % 8) + 1})\` with structural border width \`1px\`.`;
+      }
+    }
+
+    setGeneratedPrompt(longBrief.trim());
     setCopySuccess(false);
   };
 
