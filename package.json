@@ -1,0 +1,28 @@
+{
+  "name": "visuome",
+  "private": true,
+  "version": "0.5.1",
+  "type": "module",
+  "description": "Visuome: An AI-powered local-first Chrome extension that decodes the design system of the active webpage.",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "icons": "node scripts/generateIcons.mjs",
+    "build": "npm run icons && vite build",
+    "preview": "vite preview --host 127.0.0.1",
+    "check": "npm run test:classifier && npm run test:report && npm run build",
+    "test:classifier": "node scripts/checkClassifier.mjs",
+    "test:report": "node scripts/checkReport.mjs"
+  },
+  "dependencies": {
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "4.3.4",
+    "autoprefixer": "10.4.21",
+    "esbuild": "0.24.2",
+    "postcss": "8.5.3",
+    "tailwindcss": "3.4.17",
+    "vite": "5.4.14"
+  }
+}

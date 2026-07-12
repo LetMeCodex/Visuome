@@ -1,0 +1,323 @@
+@import "./fonts.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  font-family: 'Manrope', ui-sans-serif, system-ui, sans-serif;
+  color: #161616;
+  background: #e8e4d9;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  
+  /* Abetka Variables */
+  --cream: #e8e4d9;
+  --cream-deep: #ded8c8;
+  --ochre: #c9bb3f;
+  --slate: #6f8db5;
+  --umber: #5e4f2b;
+  --ink: #161616;
+  --paper: #ffffff;
+  --line: rgba(22, 22, 22, 0.14);
+  --radius: 2px;
+}
+
+/* Outline Text Effect */
+.outline-text {
+  font-style: normal;
+  -webkit-text-stroke: 1.5px var(--color-text, #161616);
+  color: var(--color-bg, #e8e4d9) !important;
+}
+
+/* Abetka register utility classes */
+.c-cream {
+  background-color: var(--cream-deep) !important;
+  color: var(--ink) !important;
+}
+.c-ochre {
+  background-color: var(--ochre) !important;
+  color: var(--ink) !important;
+}
+.c-slate {
+  background-color: var(--slate) !important;
+  color: var(--ink) !important;
+}
+.c-umber {
+  background-color: var(--umber) !important;
+  color: var(--cream) !important;
+}
+.c-ink {
+  background-color: var(--ink) !important;
+  color: var(--cream) !important;
+}
+
+/* Theme overrides */
+.dark {
+  color: var(--color-text);
+  background: var(--color-bg);
+}
+
+* { box-sizing: border-box; }
+html { min-width: 320px; background: var(--color-bg); scroll-behavior: smooth; color: var(--color-text); transition: background-color 0.3s ease, color 0.3s ease; }
+html.dark { background: var(--color-bg); }
+body { margin: 0; min-width: 320px; min-height: 100vh; background: var(--color-bg); color: var(--color-text); transition: background-color 0.3s ease, color 0.3s ease; }
+.dark body { background: var(--color-bg); }
+
+button, input, textarea, select { font: inherit; }
+button { color: inherit; }
+button:focus-visible, textarea:focus-visible, summary:focus-visible { outline: 1px solid var(--color-accent, #c9bb3f); outline-offset: 2px; }
+::selection { color: #161616; background: #c9bb3f; }
+.dark ::selection { color: #e8e4d9; background: #5e4f2b; }
+
+/* =======================================================
+   Strict 11-Tier Typography Hierarchy Classes
+   ======================================================= */
+.font-display-xl {
+  font-family: 'Unbounded', sans-serif !important;
+  font-weight: 900 !important;
+  font-size: clamp(38px, 6vw, 64px) !important;
+  line-height: 0.95 !important;
+  letter-spacing: -0.04em !important;
+  text-transform: uppercase;
+}
+
+.font-display-lg {
+  font-family: 'Unbounded', sans-serif !important;
+  font-weight: 850 !important;
+  font-size: clamp(28px, 4vw, 42px) !important;
+  line-height: 1.05 !important;
+  letter-spacing: -0.03em !important;
+  text-transform: uppercase;
+}
+
+.font-h1 {
+  font-family: 'Unbounded', sans-serif !important;
+  font-weight: 800 !important;
+  font-size: 22px !important;
+  line-height: 1.15 !important;
+  letter-spacing: -0.03em !important;
+}
+
+.font-h2 {
+  font-family: 'Unbounded', sans-serif !important;
+  font-weight: 750 !important;
+  font-size: 18px !important;
+  line-height: 1.2 !important;
+  letter-spacing: -0.02em !important;
+}
+
+.font-h3 {
+  font-family: 'Unbounded', sans-serif !important;
+  font-weight: 700 !important;
+  font-size: 15px !important;
+  line-height: 1.25 !important;
+  letter-spacing: -0.01em !important;
+}
+
+.font-title {
+  font-family: 'Manrope', sans-serif !important;
+  font-weight: 700 !important;
+  font-size: 13.5px !important;
+  line-height: 1.35 !important;
+  letter-spacing: -0.01em !important;
+}
+
+.font-subtitle {
+  font-family: 'Manrope', sans-serif !important;
+  font-weight: 600 !important;
+  font-size: 12.5px !important;
+  line-height: 1.4 !important;
+  color: var(--color-textMuted) !important;
+}
+
+.font-body-lg {
+  font-family: 'Manrope', sans-serif !important;
+  font-weight: 500 !important;
+  font-size: 13.5px !important;
+  line-height: 1.5 !important;
+}
+
+.font-body {
+  font-family: 'Manrope', sans-serif !important;
+  font-weight: 400 !important;
+  font-size: 12px !important;
+  line-height: 1.5 !important;
+}
+
+.font-caption {
+  font-family: 'Manrope', sans-serif !important;
+  font-weight: 500 !important;
+  font-size: 10px !important;
+  line-height: 1.4 !important;
+  letter-spacing: 0.04em !important;
+  text-transform: uppercase;
+  color: var(--color-textMuted) !important;
+}
+
+.font-mono {
+  font-family: monospace !important;
+  font-size: 10.5px !important;
+  line-height: 1.4 !important;
+}
+
+/* =======================================================
+   Force hardcoded Tailwind dark styles to inherit Theme tokens
+   ======================================================= */
+.bg-\[\#1c1d2a\] {
+  background-color: var(--color-bgCard) !important;
+}
+.border-\[\#2f3147\] {
+  border-color: var(--color-border) !important;
+}
+.border-\[\#2f3147\]\/50 {
+  border-color: var(--color-border) !important;
+}
+.bg-\[\#1a1b26\] {
+  background-color: var(--color-bg) !important;
+}
+.bg-\[\#14151f\] {
+  background-color: var(--color-bgMuted) !important;
+}
+.bg-\[\#0f1015\] {
+  background-color: var(--color-bg) !important;
+}
+.bg-\[\#24283b\] {
+  background-color: var(--color-bgMuted) !important;
+}
+.bg-\[\#24283b\]\/60 {
+  background-color: var(--color-bgMuted) !important;
+}
+.text-\[\#a9b1d6\] {
+  color: var(--color-textMuted) !important;
+}
+.text-\[\#89b4fa\] {
+  color: var(--color-text) !important;
+}
+.text-\[\#565f89\] {
+  color: var(--color-textMuted) !important;
+}
+.text-white {
+  color: var(--color-text) !important;
+}
+.hover\:border-\[\#4f46e5\]\/40:hover {
+  border-color: var(--color-accent) !important;
+}
+.bg-\[\#4f46e5\] {
+  background-color: var(--color-accent) !important;
+}
+.hover\:bg-\[\#5a52e6\]:hover {
+  background-color: var(--color-accentHover) !important;
+}
+.bg-\[\#ff7f96\]\/10 {
+  background-color: rgba(178, 34, 34, 0.1) !important;
+}
+.text-\[\#ff7f96\] {
+  color: var(--color-danger) !important;
+}
+.border-\[\#ff7f96\]\/30 {
+  border-color: var(--color-danger) !important;
+}
+.border-l-\[\#2f3147\] {
+  border-left-color: var(--color-border) !important;
+}
+.border-t-\[\#2f3147\] {
+  border-top-color: var(--color-border) !important;
+}
+.border-b-\[\#2f3147\] {
+  border-bottom-color: var(--color-border) !important;
+}
+.hover\:bg-\[\#24283b\]:hover {
+  background-color: var(--color-bgMuted) !important;
+}
+.hover\:bg-\[\#24283b\]\/60:hover {
+  background-color: var(--color-bgMuted) !important;
+}
+.bg-\[\#1c1d2a\]\/70 {
+  background-color: var(--color-bgCard) !important;
+}
+.bg-\[\#1a1b26\]\/70 {
+  background-color: var(--color-bgCard) !important;
+}
+.bg-\[\#14151f\]\/95 {
+  background-color: var(--color-bgCard) !important;
+}
+.bg-\[\#161926\] {
+  background-color: var(--color-bgCard) !important;
+}
+.border-\[\#232d3e\] {
+  border-color: var(--color-border) !important;
+}
+.bg-\[\#0a0f19\]\/44 {
+  background-color: var(--color-bg) !important;
+}
+.bg-\[\#121a2a\]\/66 {
+  background-color: var(--color-bgMuted) !important;
+}
+.bg-\[\#070a11\]\/28 {
+  background-color: var(--color-bgMuted) !important;
+}
+.bg-\[\#080c14\] {
+  background-color: var(--color-bg) !important;
+}
+.bg-\[\#0b0b0c\] {
+  background-color: var(--color-bg) !important;
+}
+.bg-\[\#171719\] {
+  background-color: var(--color-bgCard) !important;
+}
+.rounded, .rounded-sm, .rounded-md, .rounded-lg, .rounded-xl, .rounded-2xl, .rounded-3xl {
+  border-radius: var(--radius-sm, 2px) !important;
+}
+
+/* Dynamic Micro-animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeInUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes pulse-subtle {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+.animate-pulse-subtle {
+  animation: pulse-subtle 2s ease-in-out infinite;
+}
+
+/* Custom premium scrollbar styling */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(22, 22, 22, 0.12);
+  border-radius: 4px;
+}
+.dark ::-webkit-scrollbar-thumb {
+  background: rgba(232, 228, 217, 0.12);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(22, 22, 22, 0.24);
+}
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: rgba(232, 228, 217, 0.24);
+}

@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Абетка — Alphabet of the Ukrainian Identity</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;700;800;900&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#e8e4d9;
+    --cream-deep:#ded8c8;
+    --ochre:#c9bb3f;
+    --slate:#6f8db5;
+    --umber:#5e4f2b;
+    --ink:#161616;
+    --paper:#ffffff;
+    --line: rgba(22,22,22,0.14);
+    --radius: 2px;
+    --maxw: 1280px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--cream);
+    color:var(--ink);
+    font-family:'Manrope', sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  ::selection{background:var(--ochre); color:var(--ink);}
+
+  a{color:inherit;}
+
+  .wrap{max-width:var(--maxw); margin:0 auto; padding:0 32px;}
+
+  /* ---------- NAV ---------- */
+  header.site{
+    position:sticky; top:0; z-index:50;
+    background:var(--cream);
+    border-bottom:1px solid var(--line);
+  }
+  .nav{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:20px 32px;
+    max-width:var(--maxw); margin:0 auto;
+  }
+  .nav-mark{
+    font-family:'Unbounded', sans-serif;
+    font-weight:800;
+    font-size:22px;
+    letter-spacing:-0.02em;
+    text-decoration:none;
+  }
+  .nav-links{
+    display:flex; gap:28px; align-items:center;
+    font-size:13px; font-weight:600;
+    text-transform:uppercase; letter-spacing:0.08em;
+    list-style:none; margin:0; padding:0;
+  }
+  .nav-links a{text-decoration:none; opacity:0.75; transition:opacity .2s;}
+  .nav-links a:hover{opacity:1;}
+  .nav-lang{
+    font-size:12px; font-weight:700; letter-spacing:0.08em;
+    border:1px solid var(--ink); border-radius:999px;
+    padding:6px 14px; cursor:pointer; background:transparent;
+    font-family:'Manrope',sans-serif;
+  }
+  @media (max-width:720px){ .nav-links{display:none;} }
+
+  /* ---------- HERO ---------- */
+  .hero{
+    padding:96px 32px 72px;
+    max-width:var(--maxw); margin:0 auto;
+    position:relative;
+  }
+  .hero-eyebrow{
+    font-size:13px; font-weight:700; letter-spacing:0.14em; text-transform:uppercase;
+    color:var(--umber); margin-bottom:22px;
+    display:flex; align-items:center; gap:10px;
+  }
+  .hero-eyebrow::before{
+    content:''; width:26px; height:2px; background:var(--umber); display:inline-block;
+  }
+  h1.hero-title{
+    font-family:'Unbounded', sans-serif;
+    font-weight:900;
+    font-size:clamp(48px, 9vw, 128px);
+    line-height:0.92;
+    letter-spacing:-0.02em;
+    margin:0 0 28px;
+  }
+  h1.hero-title em{
+    font-style:normal;
+    color:var(--paper);
+    -webkit-text-stroke:2px var(--ink);
+    color:var(--cream);
+  }
+  .hero-sub{
+    font-size:clamp(16px,2vw,20px);
+    max-width:640px;
+    line-height:1.55;
+    margin:0 0 40px;
+    color:rgba(22,22,22,0.82);
+  }
+  .hero-meta{
+    display:flex; gap:40px; flex-wrap:wrap;
+    border-top:1px solid var(--line);
+    padding-top:28px;
+  }
+  .hero-meta div{font-size:13px; line-height:1.5;}
+  .hero-meta b{
+    display:block; font-family:'Unbounded',sans-serif; font-size:26px; font-weight:700; margin-bottom:2px;
+  }
+
+  /* ---------- INTRO STRIP ---------- */
+  .intro{
+    background:var(--ink); color:var(--cream);
+    padding:56px 32px;
+  }
+  .intro-inner{
+    max-width:var(--maxw); margin:0 auto;
+    display:grid; grid-template-columns:1.1fr 1.4fr; gap:56px;
+  }
+  .intro h2{
+    font-family:'Unbounded',sans-serif; font-weight:700;
+    font-size:clamp(26px,3vw,36px); line-height:1.15; margin:0;
+  }
+  .intro p{
+    font-size:15px; line-height:1.7; color:rgba(232,228,217,0.78); margin:0 0 14px;
+  }
+  @media (max-width:820px){ .intro-inner{grid-template-columns:1fr;} }
+
+  /* ---------- GRID SECTION ---------- */
+  .grid-section{padding:72px 32px 40px; max-width:var(--maxw); margin:0 auto;}
+  .grid-heading{
+    display:flex; justify-content:space-between; align-items:flex-end;
+    border-bottom:2px solid var(--ink); padding-bottom:18px; margin-bottom:36px;
+    gap:24px; flex-wrap:wrap;
+  }
+  .grid-heading h2{
+    font-family:'Unbounded',sans-serif; font-weight:800; font-size:clamp(26px,3.4vw,42px);
+    margin:0; letter-spacing:-0.01em;
+  }
+  .grid-heading p{
+    font-size:14px; max-width:340px; margin:0; line-height:1.5; color:rgba(22,22,22,0.7);
+  }
+
+  .filters{
+    display:flex; gap:10px; margin-bottom:34px; flex-wrap:wrap;
+  }
+  .filter-btn{
+    font-family:'Manrope',sans-serif;
+    font-size:12px; font-weight:700; letter-spacing:0.06em; text-transform:uppercase;
+    padding:8px 16px; border-radius:999px; border:1px solid var(--ink);
+    background:transparent; cursor:pointer; transition:all .18s;
+  }
+  .filter-btn.active, .filter-btn:hover{
+    background:var(--ink); color:var(--cream);
+  }
+
+  .card-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(230px, 1fr));
+    gap:14px;
+  }
+
+  .card{
+    position:relative;
+    aspect-ratio:3/4;
+    border-radius:var(--radius);
+    padding:18px;
+    display:flex; flex-direction:column; justify-content:space-between;
+    overflow:hidden;
+    cursor:pointer;
+    text-decoration:none;
+    color:var(--ink);
+    border:1px solid rgba(22,22,22,0.08);
+    transition:transform .28s cubic-bezier(.2,.8,.2,1), box-shadow .28s;
+  }
+  .card:hover{ transform:translateY(-6px); box-shadow:0 18px 34px rgba(22,22,22,0.18); z-index:2;}
+
+  .card .idx{
+    font-size:11px; font-weight:700; letter-spacing:0.08em;
+    display:flex; justify-content:space-between; align-items:flex-start;
+  }
+  .card .phon{
+    font-family:'Manrope',sans-serif; font-weight:700;
+    padding:3px 8px; border-radius:999px; background:rgba(255,255,255,0.35);
+  }
+  .card .glyph{
+    font-family:'Unbounded',sans-serif;
+    font-weight:900;
+    font-size:min(20vw, 92px);
+    line-height:0.8;
+    letter-spacing:-0.03em;
+    align-self:flex-start;
+    margin:auto 0 8px;
+  }
+  .card .title{
+    font-family:'Manrope',sans-serif;
+    font-weight:700;
+    font-size:14px;
+    line-height:1.35;
+    display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden;
+  }
+  .card .desc{
+    position:absolute; inset:0; padding:18px;
+    display:flex; flex-direction:column; justify-content:flex-end;
+    background:rgba(22,22,22,0.86);
+    color:var(--cream);
+    opacity:0; transform:translateY(8px);
+    transition:opacity .22s ease, transform .22s ease;
+    font-size:13px; line-height:1.55;
+  }
+  .card:hover .desc{opacity:1; transform:translateY(0);}
+  .card .desc .see-more{
+    margin-top:12px; font-size:11px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase;
+    color:var(--ochre);
+  }
+
+  /* palette rotation */
+  .c-cream{ background:var(--cream-deep); }
+  .c-ochre{ background:var(--ochre); }
+  .c-slate{ background:var(--slate); color:var(--ink); }
+  .c-umber{ background:var(--umber); color:var(--cream); }
+  .c-umber .phon{ background:rgba(232,228,217,0.18); color:var(--cream);}
+  .c-slate .phon{ background:rgba(22,22,22,0.12); }
+  .c-ink{ background:var(--ink); color:var(--cream); }
+  .c-ink .phon{ background:rgba(232,228,217,0.16); color:var(--cream); }
+
+  /* ---------- ABOUT / TYPE SPECIMEN ---------- */
+  .about{
+    padding:96px 32px; max-width:var(--maxw); margin:0 auto;
+    display:grid; grid-template-columns: 1fr 1fr; gap:64px; align-items:center;
+  }
+  .about-visual{
+    aspect-ratio:1/1;
+    background:var(--ink); color:var(--cream);
+    display:flex; align-items:center; justify-content:center;
+    border-radius:var(--radius);
+    position:relative; overflow:hidden;
+  }
+  .about-visual .big-letter{
+    font-family:'Unbounded',sans-serif; font-weight:900; font-size:min(28vw, 260px);
+    line-height:1; letter-spacing:-0.04em;
+  }
+  .about-visual .ring{
+    position:absolute; inset:24px; border:1px solid rgba(232,228,217,0.25); border-radius:50%;
+  }
+  .about h2{
+    font-family:'Unbounded',sans-serif; font-weight:800; font-size:clamp(28px,3.6vw,44px);
+    line-height:1.1; margin:0 0 20px;
+  }
+  .about p{font-size:15px; line-height:1.75; color:rgba(22,22,22,0.78); margin:0 0 16px; max-width:520px;}
+  .about-stats{display:flex; gap:36px; margin-top:28px;}
+  .about-stats div b{
+    display:block; font-family:'Unbounded',sans-serif; font-weight:800; font-size:32px;
+  }
+  .about-stats div span{font-size:12px; text-transform:uppercase; letter-spacing:0.08em; color:rgba(22,22,22,0.6);}
+  @media (max-width:860px){ .about{grid-template-columns:1fr;} }
+
+  /* ---------- FOOTER ---------- */
+  footer.site{
+    background:var(--ink); color:var(--cream);
+    padding:64px 32px 28px;
+  }
+  .footer-top{
+    max-width:var(--maxw); margin:0 auto;
+    display:flex; justify-content:space-between; flex-wrap:wrap; gap:32px;
+    border-bottom:1px solid rgba(232,228,217,0.18);
+    padding-bottom:40px; margin-bottom:24px;
+  }
+  .footer-mark{
+    font-family:'Unbounded',sans-serif; font-weight:800; font-size:26px;
+  }
+  .footer-cols{ display:flex; gap:64px; flex-wrap:wrap; }
+  .footer-cols h4{
+    font-size:12px; text-transform:uppercase; letter-spacing:0.1em; color:var(--ochre);
+    margin:0 0 14px;
+  }
+  .footer-cols ul{list-style:none; margin:0; padding:0;}
+  .footer-cols li{margin-bottom:9px;}
+  .footer-cols a{text-decoration:none; font-size:14px; opacity:0.85;}
+  .footer-cols a:hover{opacity:1; text-decoration:underline;}
+  .footer-bottom{
+    max-width:var(--maxw); margin:0 auto;
+    display:flex; justify-content:space-between; font-size:12px; color:rgba(232,228,217,0.55);
+    flex-wrap:wrap; gap:10px;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ transition:none !important; animation:none !important; }
+  }
+</style>
+</head>
+<body>
+
+<header class="site">
+  <nav class="nav">
+    <a href="#" class="nav-mark">Абетка</a>
+    <ul class="nav-links">
+      <li><a href="#grid">Alphabet</a></li>
+      <li><a href="#about">About</a></li>
+      <li><a href="#footer">Contact</a></li>
+    </ul>
+    <button class="nav-lang" id="langToggle">EN</button>
+  </nav>
+</header>
+
+<section class="hero">
+  <div class="hero-eyebrow">Typeface &amp; cultural archive</div>
+  <h1 class="hero-title">33 letters.<br>One <em>identity</em>.</h1>
+  <p class="hero-sub">Абетка is a typeface built from the Ukrainian alphabet — where every letter carries a person, a place, an object, or an event that shaped the country's story. This is the archive behind the type.</p>
+  <div class="hero-meta">
+    <div><b>33</b>Letters catalogued</div>
+    <div><b>1932–2022</b>Span of documented history</div>
+    <div><b>4</b>Colour registers</div>
+    <div><b>UA / EN</b>Bilingual archive</div>
+  </div>
+</section>
+
+<section class="intro">
+  <div class="intro-inner">
+    <h2>Every glyph is a small monument.</h2>
+    <p>A typeface is usually judged by its curves and counters. Абетка is judged by what it remembers. Each letterform in this specimen is paired with a fragment of Ukrainian history — some celebrated, some painful, some almost forgotten — so that typing the alphabet becomes an act of recollection.</p>
+    <p>Scroll through the grid below to meet the full set: people, buildings, songs, machines, and words that don't translate cleanly into any other language.</p>
+  </div>
+</section>
+
+<section class="grid-section" id="grid">
+  <div class="grid-heading">
+    <h2>The archive, A to Я</h2>
+    <p>Filter by register to see how colour groups the calendar of Ukrainian memory.</p>
+  </div>
+
+  <div class="filters" id="filters">
+    <button class="filter-btn active" data-filter="all">All</button>
+    <button class="filter-btn" data-filter="c-ochre">Culture</button>
+    <button class="filter-btn" data-filter="c-slate">People</button>
+    <button class="filter-btn" data-filter="c-umber">History</button>
+    <button class="filter-btn" data-filter="c-ink">Language</button>
+  </div>
+
+  <div class="card-grid" id="cardGrid"></div>
+</section>
+
+<section class="about" id="about">
+  <div class="about-visual">
+    <div class="ring"></div>
+    <div class="big-letter">Я</div>
+  </div>
+  <div>
+    <h2>Not an alphabet chart. A specimen of memory.</h2>
+    <p>Абетка began as a type-design exercise and became something closer to an oral history, rendered in letterforms. Each entry follows the same rule: one letter, one sound, one story — told in a single paragraph, so it can be read in the time it takes to trace the glyph.</p>
+    <p>The typeface itself borrows its weight from Soviet-era signage and its warmth from folk embroidery patterns — heavy where history is heavy, and lighter where the story turns to song.</p>
+    <div class="about-stats">
+      <div><b>7</b><span>Palette tones</span></div>
+      <div><b>2</b><span>Custom typefaces</span></div>
+      <div><b>∞</b><span>Ways to keep telling it</span></div>
+    </div>
+  </div>
+</section>
+
+<footer class="site" id="footer">
+  <div class="footer-top">
+    <div class="footer-mark">Абетка</div>
+    <div class="footer-cols">
+      <div>
+        <h4>Archive</h4>
+        <ul>
+          <li><a href="#grid">Full alphabet</a></li>
+          <li><a href="#about">About the project</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Language</h4>
+        <ul>
+          <li><a href="#">Українська</a></li>
+          <li><a href="#">English</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Elsewhere</h4>
+        <ul>
+          <li><a href="#">Instagram</a></li>
+          <li><a href="#">Behance</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© Абетка — Alphabet of the Ukrainian Identity</span>
+    <span>Recreated design study, independent build</span>
+  </div>
+</footer>
+
+<script>
+const entries = [
+  {n:1, tag:"а", g:"A", title:"Antonov AN-225 \u201cMriya\u201d (\u201cThe Dream\u201d)", desc:"The world's largest cargo aircraft, built in Kyiv and destroyed in the 2022 invasion.", c:"c-ochre", cat:"c-ochre"},
+  {n:2, tag:"be", g:"B", title:"Budynok \u201cSlovo\u201d (The Slovo Building)", desc:"A Kharkiv apartment block that housed dozens of Ukrainian writers in the 1930s, many later executed.", c:"c-umber", cat:"c-umber"},
+  {n:3, tag:"ve", g:"V", title:"Volia \u2014 a word for freedom", desc:"A collective concept usually translated as freedom, carrying weight the dictionary can't hold.", c:"c-ink", cat:"c-ink"},
+  {n:4, tag:"he", g:"H", title:"Holodomor", desc:"The 1932\u201333 famine engineered by Soviet policy that killed millions of Ukrainians.", c:"c-umber", cat:"c-umber"},
+  {n:5, tag:"ge", g:"\u0490", title:"Georgiy Gongadze", desc:"A journalist whose 2000 murder became a turning point for press freedom in Ukraine.", c:"c-slate", cat:"c-slate"},
+  {n:6, tag:"de", g:"D", title:"Danylo Halytskyi", desc:"The 13th-century king who united Galicia-Volhynia and built the city of Lviv.", c:"c-slate", cat:"c-slate"},
+  {n:7, tag:"e", g:"E", title:"Aeneid by Ivan Kotliarevsky", desc:"The first major work published in modern Ukrainian \u2014 a comic retelling of Virgil.", c:"c-ochre", cat:"c-ochre"},
+  {n:8, tag:"ye", g:"\u0404", title:"Peresopnytske Yevanheliie", desc:"A 16th-century illuminated Gospel, the first translation into vernacular Ukrainian.", c:"c-cream", cat:"c-ink"},
+  {n:9, tag:"zhe", g:"\u0416", title:"Zhyvyi Lantsiuh (Human Chain)", desc:"A 2018 human chain marking the unification of Ukrainian lands.", c:"c-slate", cat:"c-history"},
+  {n:10, tag:"ze", g:"Z", title:"Zaporizka Sich", desc:"The fortified stronghold of the Cossack host beyond the Dnipro rapids.", c:"c-umber", cat:"c-umber"},
+  {n:11, tag:"y", g:"Y", title:"Yrii, Yndyk &amp; Yrod", desc:"A cluster of old dialect words for paradise, turkey, and Herod.", c:"c-ink", cat:"c-ink"},
+  {n:12, tag:"i", g:"\u0406", title:"Ivan Franko", desc:"Poet, novelist, and political thinker central to Ukrainian literary modernism.", c:"c-slate", cat:"c-slate"},
+  {n:13, tag:"yi", g:"\u0407", title:"Yizhak Protytankovyi", desc:"The anti-tank \u201cCzech hedgehog\u201d, an emblem of civilian defense since 2022.", c:"c-ochre", cat:"c-ochre"},
+  {n:14, tag:"jot", g:"\u0419", title:"\u201cYoi, nai bude!\u201d", desc:"A resigned exclamation \u2014 roughly, \u201cwell, let it be.\u201d", c:"c-cream", cat:"c-ink"},
+  {n:15, tag:"ka", g:"K", title:"Crimean Tatars, Karaites &amp; Krymchaks", desc:"The peninsula's indigenous Turkic-speaking peoples.", c:"c-slate", cat:"c-slate"},
+  {n:16, tag:"el", g:"L", title:"Lisova Pisnia (The Forest Song)", desc:"Lesya Ukrainka's mythic forest drama of spirits and love.", c:"c-ochre", cat:"c-ochre"},
+  {n:17, tag:"em", g:"M", title:"Mariupol", desc:"The port city besieged and largely destroyed in 2022.", c:"c-umber", cat:"c-umber"},
+  {n:18, tag:"en", g:"N", title:"\u201cNasha Armiia, Nashi Khranyteli\u201d", desc:"\u201cOur army, our guardians\u201d \u2014 a phrase of wartime gratitude.", c:"c-slate", cat:"c-history"},
+  {n:19, tag:"o", g:"O", title:"Orlyk's Constitution", desc:"An 18th-century Cossack charter, often cited as an early constitutional document.", c:"c-umber", cat:"c-umber"},
+  {n:20, tag:"pe", g:"P", title:"\u201cPlyve Kacha po Tysyni\u201d", desc:"A folk lament traditionally sung at soldiers' funerals.", c:"c-ochre", cat:"c-ochre"},
+  {n:21, tag:"er", g:"R", title:"1991 Independence Referendum", desc:"The vote confirming Ukraine's break from the Soviet Union.", c:"c-ink", cat:"c-history"},
+  {n:22, tag:"es", g:"S", title:"\u201cSmilyvi Zavzhdy Maiut Shchastia\u201d", desc:"\u201cThe brave always have luck\u201d \u2014 an old proverb.", c:"c-cream", cat:"c-ink"},
+  {n:23, tag:"te", g:"T", title:"The Trident of Volodymyr the Great", desc:"His dynastic sign, now the national coat of arms.", c:"c-slate", cat:"c-slate"},
+  {n:24, tag:"u", g:"U", title:"Ukrainski Sichovi Striltsi", desc:"The WWI-era volunteer corps that shaped 20th-century national identity.", c:"c-umber", cat:"c-umber"},
+  {n:25, tag:"ef", g:"F", title:"Falz-Fein &amp; Askania-Nova", desc:"A 19th-century steppe estate turned pioneering wildlife reserve.", c:"c-ochre", cat:"c-ochre"},
+  {n:26, tag:"kha", g:"X", title:"Khreshchennia Rusi", desc:"The 988 baptism of Kyivan Rus' under Volodymyr the Great.", c:"c-slate", cat:"c-history"},
+  {n:27, tag:"ts", g:"\u0426", title:"Kvitka Cisyk (Kasey Cisyk)", desc:"Ukrainian-American singer known for her folk recordings and jingle work.", c:"c-slate", cat:"c-slate"},
+  {n:28, tag:"che", g:"\u0427", title:"Chornobyl Disaster", desc:"The 1986 nuclear disaster and its long shadow over the region.", c:"c-umber", cat:"c-umber"},
+  {n:29, tag:"sha", g:"\u0428", title:"Shliakh iz Variah u Hreky", desc:"The medieval river trade route linking Scandinavia and Byzantium.", c:"c-ink", cat:"c-history"},
+  {n:30, tag:"shcha", g:"\u0429", title:"\u201cShchedryk\u201d", desc:"Leontovych's carol, known worldwide as \u201cCarol of the Bells.\u201d", c:"c-ochre", cat:"c-ochre"},
+  {n:31, tag:"...", g:"\u042C", title:"The Soft Sign", desc:"A letter with no sound of its own \u2014 it only softens the one before it.", c:"c-cream", cat:"c-ink"},
+  {n:32, tag:"yu", g:"\u042E", title:"Yuzivka", desc:"The industrial settlement founded by Welsh entrepreneur John Hughes, now Donetsk.", c:"c-slate", cat:"c-history"},
+  {n:33, tag:"ya", g:"\u042F", title:"\u201cYak Umru, to Pokhovaite...\u201d", desc:"Shevchenko's \u201cTestament,\u201d a poem written as he lay dying.", c:"c-umber", cat:"c-umber"}
+];
+
+const grid = document.getElementById('cardGrid');
+
+function pad(n){ return n < 10 ? '0'+n : n; }
+
+entries.forEach(e => {
+  const card = document.createElement('div');
+  card.className = `card ${e.c}`;
+  card.dataset.cat = e.cat;
+  card.innerHTML = `
+    <div class="idx"><span>${pad(e.n)}</span><span class="phon">[${e.tag}]</span></div>
+    <div class="glyph">${e.g}</div>
+    <div class="title">${e.title}</div>
+    <div class="desc">
+      <div>${e.desc}</div>
+      <div class="see-more">See more &rarr;</div>
+    </div>
+  `;
+  grid.appendChild(card);
+});
+
+document.getElementById('filters').addEventListener('click', (ev) => {
+  const btn = ev.target.closest('.filter-btn');
+  if(!btn) return;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const f = btn.dataset.filter;
+  document.querySelectorAll('.card').forEach(c => {
+    c.style.display = (f === 'all' || c.dataset.cat === f) ? '' : 'none';
+  });
+});
+
+document.getElementById('langToggle').addEventListener('click', function(){
+  this.textContent = this.textContent === 'EN' ? 'UA' : 'EN';
+});
+</script>
+
+</body>
+</html>
