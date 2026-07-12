@@ -122,7 +122,7 @@ export function WorkspaceRouter({
       case "Prompt Studio":
         return <PromptStudioPage promptRegistry={promptRegistry} designGenome={designGenome} />;
       case "Genome Mixer":
-        return <GenomeMixerPage designGenome={designGenome} scans={scans} />;
+        return <GenomeMixerPage designGenome={designGenome} scans={scans} report={report} />;
       case "Custom Prompt":
         return <CustomPromptPage designGenome={designGenome} report={report} />;
       case "History":

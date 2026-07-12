@@ -150,7 +150,7 @@ async function crawlCustomUrl(url) {
   };
 }
 
-export function GenomeMixerPage({ designGenome = {}, scans = [] }) {
+export function GenomeMixerPage({ designGenome = {}, scans = [], report = {} }) {
   const [genomeAId, setGenomeAId] = useState("");
   const [genomeBId, setGenomeBId] = useState("");
   const [blendWeight, setBlendWeight] = useState(0.5);
@@ -276,16 +276,17 @@ export function GenomeMixerPage({ designGenome = {}, scans = [] }) {
     }));
     
     if (designGenome && Object.keys(designGenome).length > 0) {
+      const scannedDomain = report?.page?.domain || report?.domain || designGenome.metadata?.domain || "augen.pro";
       list.unshift({
         id: "active-scan",
-        pageTitle: "Active Scan",
-        domain: designGenome.metadata?.domain || "current-page",
+        pageTitle: `Scanned Site (${scannedDomain})`,
+        domain: scannedDomain,
         designGenome
       });
     }
 
     return [...customGenomes, ...list, ...SYSTEM_PRESETS];
-  }, [scans, designGenome, customGenomes]);
+  }, [scans, designGenome, customGenomes, report]);
 
   useEffect(() => {
     if (allOptions.length > 0) {
@@ -438,75 +439,111 @@ export function GenomeMixerPage({ designGenome = {}, scans = [] }) {
   const handleMix = () => {
     if (!genomeA || !genomeB) return;
 
-    const colorsStr = blendedPalette.map((c, i) => `- Swatch ${i + 1}: \`${c}\``).join("\n");
-    const spacingStr = blendedSpacingScale.join(", ");
-    const radiusStr = blendedRadiusScale.join(", ");
+    const colorsList = blendedPalette.map((c, i) => `  - **Swatch ${i + 1} (Blended Accent/Surface):** \`${c}\``).join("\n");
+    const spacingList = blendedSpacingScale.map((s, i) => `  - **Scale Step ${i + 1}:** \`${s}\``).join("\n");
+    const radiusList = blendedRadiusScale.map((r, i) => `  - **Radius Step ${i + 1}:** \`${r}\``).join("\n");
 
-    const prompt = `# 🎭 DESIGN SYSTEM SYNTHESIS & BRIEF
-You are an elite Staff Frontend Engineer and Design Technologist. Your task is to build a high-fidelity, premium visual interface that synthesizes the design DNA of two source applications into a cohesive, state-of-the-art visual masterpiece.
+    const prompt = `# 🎭 ELITE DESIGN SYSTEM SYNTHESIS & DEVELOPMENT BRIEF
+You are an expert Principal Frontend Architect and elite UI/UX Design Technologist. Your objective is to build a high-fidelity, visually stunning, state-of-the-art master interface by mathematically and aesthetically synthesizing the visual DNA of two target sites.
 
-## 🧬 SOURCE LAYOUT & DESIGN SYSTEM DNA
-
-### 📐 SOURCE A: ${genomeA.pageTitle} (${genomeA.domain})
-- Core Design Principles: Structured hierarchy, clean boundaries.
-- Primary Font Family: \`${genomeA.designGenome?.visualDNA?.typography?.primaryFontFamily || "System"}\`
-
-### 📐 SOURCE B: ${genomeB.pageTitle} (${genomeB.domain})
-- Core Design Principles: Fluid motion, immersive spacing grids.
-- Primary Font Family: \`${genomeB.designGenome?.visualDNA?.typography?.primaryFontFamily || "System"}\`
+This specification contains comprehensive, exact design tokens, structural rules, components layout, and color systems designed to be 100% accurate. Do not make assumptions. Adhere strictly to the metrics below.
 
 ---
 
-## 🎛️ SYNTHESIZED SYSTEM CONFIGURATION (Weight: ${(blendWeight * 100).toFixed(0)}% Source B / ${((1 - blendWeight) * 100).toFixed(0)}% Source A)
+## 🧬 SECTION 1: SOURCE ARCHITECTURES & PRINCIPLES
+
+### 📐 SOURCE A DESIGN GENOME: ${genomeA.pageTitle} (${genomeA.domain})
+*   **Core Aesthetic Philosophy:** Structured layouts, explicit borders, high text-to-canvas contrast, and precise grid boundaries.
+*   **Typography Archetype:** Styled using the displays of \`${genomeA.designGenome?.visualDNA?.typography?.primaryFontFamily || "System"}\`.
+*   **Spacing Archetype:** Layout boundaries and grid system follow a structured grid approach.
+
+### 📐 SOURCE B DESIGN GENOME: ${genomeB.pageTitle} (${genomeB.domain})
+*   **Core Aesthetic Philosophy:** Immersive visuals, fluid gradients, wide airy padding scales, and soft layered cards.
+*   **Typography Archetype:** Styled using the clean readability of \`${genomeB.designGenome?.visualDNA?.typography?.primaryFontFamily || "System"}\`.
+*   **Spacing Archetype:** Spacings and card layers are integrated to feel modern and premium.
+
+---
+
+## 🎛️ SECTION 2: SYNTHESIZED SYSTEM CONFIGURATION (Weight: ${(blendWeight * 100).toFixed(0)}% Source B / ${((1 - blendWeight) * 100).toFixed(0)}% Source A)
 
 ### 🎨 1. THE BLENDED PALETTE
-Configure your design system with this mathematically interpolated color system:
-${colorsStr}
+Use the following mathematically blended palette to construct your design system. These colors are derived by interpolating the hex swatches of both sites:
+${colorsList}
 
-*Application Guidelines:* Implement these colors to ensure a minimum of 4.5:1 contrast ratio (WCAG AA compliant) for all text readability. Maintain a strict hierarchy where background surfaces use dark/light anchors and primary actions utilize high-energy accents.
+*Contrast & Visual Rules:*
+- **Canvas Base Background:** Use \`${blendedPalette[1] || "#121212"}\` for the main background. If it is a dark color, ensure card surfaces use slightly lighter values.
+- **Surface / Card Fills:** Use \`${blendedPalette[3] || "#1e1e1e"}\` with a subtle \`5%\` opacity borders for cards and containers.
+- **Accents & Action Buttons:** Use \`${blendedPalette[0] || "#c9bb3f"}\` to draw visual weight to primary interactions.
+- **Contrast Compliance:** Enforce a minimum contrast ratio of 4.5:1 (WCAG AA compliant) for all typography text copy elements against their respective backgrounds.
 
-### 🔤 2. TYPOGRAPHIC PAIRING
-Ensure your typography system pairs the fonts as follows:
-- **Display & Headings:** \`${blendedFontHeading}\` (Apply with letter-spacing tracking \`-0.02em\` for a modern editorial feeling)
-- **Body, Controls & Copy:** \`${blendedFontBody}\` (Clean, highly readable font family, set with line-height of \`1.5\` or \`1.6\`)
-
-*Hierarchy Guidelines:*
-- \`h1\` / Main Titles: 3rem (48px) | bold | font-heading | tracking-tight
-- \`h2\` / Section Titles: 2rem (32px) | semibold | font-heading
-- \`h3\` / Sub-headings: 1.25rem (20px) | medium | font-heading
-- \`body\` / Controls: 0.875rem (14px) | regular | font-body
+### 🔤 2. TYPOGRAPHIC PAIRING & SYSTEM
+*   **Display & Headings font:** \`${blendedFontHeading}\`
+    - Apply with letter-spacing tracking \`-0.02em\` to capture a high-fashion editorial feeling.
+    - Set heading line-height to \`1.15\` or \`1.2\` for multi-line display headers.
+*   **Body, Controls, Forms, and Copy font:** \`${blendedFontBody}\`
+    - Enforce a line-height of \`1.5\` or \`1.6\` to ensure comfortable reading.
+*   **Relative Typographic Scale:**
+    - \`h1\` (Hero Headlines): \`3rem (48px)\` | Bold | Font Heading | Tracking-tight
+    - \`h2\` (Section Headers): \`2rem (32px)\` | Semibold | Font Heading
+    - \`h3\` (Subheaders / Titles): \`1.25rem (20px)\` | Medium | Font Heading
+    - \`body\` (Copy & Controls): \`0.875rem (14px)\` | Regular | Font Body
+    - \`small\` / Captions: \`0.75rem (12px)\` | Regular | Font Body | Text-muted
 
 ### 📏 3. SPACING, GRID & ROUNDNESS DENSITY
 Interpolated spacing scale to map layout margins, padding, and gaps:
-- **Spacing Steps:** ${spacingStr}
-- **Border Radius Scale:** ${radiusStr}
+${spacingList}
 
-*Density Philosophy:* Enforce a layout density of \`${mergeStrategy}\`. Combine container paddings and component gaps to reflect this spacing scale to recreate the hybrid grid density. Keep layout boundaries and structural border lines thin and clean.
+- **Border Radius Scale:**
+${radiusList}
 
----
-
-## 📦 COMPONENT ARCHITECTURE SPECIFICATION
-Translate this visual brief into structured markup using these component blueprints:
-
-1. **Global Shell & Navigation:**
-   - A clean layout header featuring the display typeface and high-contrast navigation links.
-   - Background canvas styled with the primary blended surface color and bordered bottom.
-
-2. **Hero Showcase Section:**
-   - Large display typography styling utilizing the display font.
-   - Primary action buttons using the blended accent color with hover-transform transition easing variables.
-
-3. **Content Grid / Cards:**
-   - Flexible responsive columns mapping to spacing variables.
-   - Cards styled with the secondary blended color and custom rounded corners.
-
-4. **Interactive Controls & Inputs:**
-   - Active controls should highlight with focus rings using the blended accent color.
+*Spacing & Boundary Philosophy:*
+- Combine the structured layout of ${genomeA.pageTitle} with the smooth, immersive padding scales of ${genomeB.pageTitle}.
+- Use \`${mergeStrategy}\` strategy: Configure container paddings using \`${blendedSpacingScale[3] || "24px"}\` and grid gap items using \`${blendedSpacingScale[1] || "8px"}\` or \`${blendedSpacingScale[2] || "14px"}\`.
+- Ensure all interactive elements have card border radius configured to \`${blendedRadiusScale[1] || "8px"}\` or \`${blendedRadiusScale[0] || "4px"}\`.
 
 ---
 
-## ⚡ CODING & COMPILING DIRECTIVE
-Use the provided CSS Variables and Tailwind Configuration to initialize the theme styles. Build a semantically clean, highly polished layout that feels alive, premium, responsive, and adheres precisely to the blended layout densities.`;
+## 📦 SECTION 3: DETAILED COMPONENT ARCHITECTURE BLUEPRINTS
+
+To build a premium design masterpiece, implement the layout using these precise structural blueprints:
+
+### 1. Global Navigation Header
+- **Layout:** Horizontal flex bar with a height of \`64px\`. Space navigation links evenly.
+- **Styling:** Set the header background to \`${blendedPalette[1] || "#121212"}\` with a backdrop blur of \`12px\` (if transparency is used). Add a fine, high-contrast bottom border styled in \`${blendedPalette[4] || "#282828"}\` with \`1px\` height.
+- **Typography:** Logo styled in bold heading font \`${blendedFontHeading}\`. Links styled in \`0.875rem\` regular font \`${blendedFontBody}\` with hover highlight using accent \`${blendedPalette[0]}\`.
+
+### 2. Interactive Hero Section
+- **Composition:** Centered or split-column layout with a container height of at least \`500px\` and generous top/bottom padding (\`${blendedSpacingScale[7] || "36px"}\`).
+- **Typography:** Large display header (\`h1\`) styled in \`${blendedFontHeading}\` with color \`${blendedPalette[2] || "#ffffff"}\`. Enforce tracking-tight.
+- **Primary Action Button:**
+  - Background fill: \`${blendedPalette[0] || "#c9bb3f"}\` (Accent).
+  - Text color: Contrasting light or dark anchor.
+  - Border radius: \`${blendedRadiusScale[1] || "8px"}\`.
+  - Padding: \`10px 20px\` (\`${blendedSpacingScale[2]}\` / \`${blendedSpacingScale[4]}\`).
+  - Interactive Animation: Apply scale-up hover transform \`transform: scale(1.02); transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);\`.
+- **Secondary Action Button:**
+  - Background fill: transparent, with border outline styled in \`${blendedPalette[4] || "#282828"}\`.
+  - Text color: \`${blendedPalette[2] || "#ffffff"}\`.
+
+### 3. Content Card Grid
+- **Composition:** 3-column asymmetric layout with grid gaps styled to \`${blendedSpacingScale[3] || "24px"}\`.
+- **Card Styling:**
+  - Card background: \`${blendedPalette[3] || "#1e1e1e"}\`.
+  - Border: \`1px\` solid \`${blendedPalette[4] || "#282828"}\`.
+  - Border radius: \`${blendedRadiusScale[1] || "8px"}\`.
+  - Shadow: Apply a subtle, diffused box shadow \`0 10px 30px -10px rgba(0,0,0,0.3)\`.
+  - Padding: \`20px\` (\`${blendedSpacingScale[5]}\`).
+
+### 4. Interactive Controls & Forms
+- **Input Fields:**
+  - Background: \`${blendedPalette[1] || "#121212"}\`.
+  - Border: \`1px\` solid \`${blendedPalette[4] || "#282828"}\`.
+  - Focus Ring: Apply \`1px\` solid \`${blendedPalette[0] || "#c9bb3f"}\` focus outline with a soft transition.
+
+---
+
+## ⚡ SECTION 4: PRODUCTION CODING DIRECTIVE
+Initialize the design system styles using the provided CSS Variables and Tailwind Configuration. Construct a semantically clean, highly responsive layout. Ensure components use these interpolated styling variables to create an absolute masterpiece.`;
 
     setGeneratedPrompt(prompt.trim());
     setCopySuccess(false);
