@@ -21,11 +21,7 @@ export function CommandPalette({ isOpen, onClose }) {
     { name: "Trigger Quick Scan", action: () => {
       const scanButton = document.querySelector(".top-command-bar button");
       if (scanButton) scanButton.click();
-    }, category: "Actions", icon: "⚡" },
-    { name: "Toggle Theme Mode", action: () => {
-      const themeToggle = document.querySelector(".top-command-bar button[class*='icon-button']");
-      if (themeToggle) themeToggle.click();
-    }, category: "Actions", icon: "🌓" }
+    }, category: "Actions", icon: "⚡" }
   ];
 
   const filtered = commands.filter((c) =>

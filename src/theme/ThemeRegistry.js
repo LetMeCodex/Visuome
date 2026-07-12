@@ -7,7 +7,6 @@ export class ThemeRegistry {
   constructor() {
     this.themes = new Map();
     this.register("dark", DesignTokens.colors.dark);
-    this.register("light", DesignTokens.colors.light);
   }
 
   register(name, colorMap) {
@@ -15,7 +14,7 @@ export class ThemeRegistry {
   }
 
   get(name) {
-    return this.themes.get(name) || this.themes.get("dark");
+    return this.themes.get("dark");
   }
 }
 export default ThemeRegistry;

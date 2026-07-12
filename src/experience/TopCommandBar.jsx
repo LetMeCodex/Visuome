@@ -61,10 +61,6 @@ export function TopCommandBar({ currentUrl = "localhost", onSearch, onScan }) {
             </div>
           )}
         </div>
-
-        <IconButton onClick={toggleTheme} className="hover:bg-[var(--color-bgCard)] text-[var(--color-text)]">
-          {theme === "dark" ? "☀️" : "🌙"}
-        </IconButton>
       </div>
     </div>
   );

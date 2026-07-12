@@ -4,25 +4,21 @@ import ThemeEngine from "../theme/ThemeEngine.js";
 const ThemeContext = createContext(null);
 
 export function ThemeProvider({ children }) {
-  const [theme, setThemeState] = useState("light");
+  const [theme] = useState("dark");
   const engine = React.useMemo(() => new ThemeEngine(), []);
 
   useEffect(() => {
-    engine.applyTheme(theme);
+    engine.applyTheme("dark");
     const root = document.documentElement;
-    if (theme === "dark") {
-      root.classList.add("dark");
-    } else {
-      root.classList.remove("dark");
-    }
-  }, [theme, engine]);
+    root.classList.add("dark");
+  }, [engine]);
 
   const toggleTheme = () => {
-    setThemeState(prev => (prev === "dark" ? "light" : "dark"));
+    // No-op (only dark mode supported now)
   };
 
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme, setTheme: setThemeState }}>
+    <ThemeContext.Provider value={{ theme, toggleTheme, setTheme: () => {} }}>
       {children}
     </ThemeContext.Provider>
   );
